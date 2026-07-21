@@ -31,7 +31,6 @@
             margin: 0; 
             padding: 0; 
             min-height: 100vh; 
-            /* SFONDI LOKAL STANDART (bg.jpg) */
             background-image: url('./bg.jpg');
             background-size: cover; 
             background-position: center center; 
@@ -47,7 +46,6 @@
         .screen.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* NUMPAD LOGIN ME POZICIONIM NE FUND TE EKRANIT */
         #screen-login.active { display: flex; flex-direction: column; align-items: center; min-height: 85vh; }
         .logo-login { width: 120px; height: 120px; border-radius: 20%; margin-bottom: 20px; border: 2px solid var(--accent); object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         #pin-input { background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); border: 1px solid var(--accent); color: white; font-size: 24px; padding: 15px; border-radius: 10px; width: 200px; text-align: center; margin-bottom: 20px; letter-spacing: 10px; outline: none;}
@@ -55,13 +53,11 @@
         .num-btn { background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 15px; font-size: 22px; border-radius: 10px; cursor: pointer; transition: 0.2s;}
         .num-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.95); }
 
-        /* V-SCREEN DASHBOARD (Frosted Glass) */
         .v-screen { background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(0, 173, 181, 0.4); border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: left; font-family: 'Courier New', monospace; color: #00ffcc; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
         .v-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; border-bottom: 1px solid rgba(0,173,181,0.2); padding-bottom: 4px;}
         .v-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
         .v-val { font-weight: bold; color: #fff; text-shadow: 0 0 5px rgba(0,0,0,0.5); }
 
-        /* BUTTONS (Transparent Gradient + Blur) */
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .btn-full { grid-column: span 2; }
         .btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 15px 5px; font-size: 15px; font-weight: bold; color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: 0.2s; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
@@ -77,7 +73,6 @@
         .b-allclose { background: rgba(34,34,34,0.65); border: 1px solid rgba(255,255,255,0.2); }
         .b-gray { background: rgba(85,85,85,0.65); }
 
-        /* SETTINGS & INPUTS (Frosted Glass) */
         .input-group { text-align: left; margin-bottom: 20px; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
         .input-group h3 { margin-top: 0; color: var(--accent); font-size: 16px; border-bottom: 1px solid rgba(0,173,181,0.3); padding-bottom: 5px; }
         .input-group label { display: block; font-size: 13px; color: #ddd; margin-bottom: 5px; margin-top: 10px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
@@ -86,7 +81,6 @@
         .service-tick { display: flex; align-items: center; margin-bottom: 10px; font-size: 15px; color: #ddd; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
         .service-tick input[type="checkbox"] { width: 22px; height: 22px; margin-right: 12px; accent-color: var(--accent); cursor: pointer; }
 
-        /* NAV BAR */
         .nav-bar { display: none; justify-content: space-around; background: rgba(10,10,10,0.85); padding: 15px 0; border-top: 1px solid rgba(0,173,181,0.3); position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); }
         .nav-icon { font-size: 26px; cursor: pointer; color: #777; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
         .nav-icon span { font-size: 10px; margin-top: 3px; font-weight: bold; }
@@ -122,7 +116,6 @@
             <h2 style="margin-bottom: 15px; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">PULTI KONTROLLIT</h2>
             
             <div class="v-screen">
-                <!-- Nënshkrimi Yt në Ekranin Virtual -->
                 <div style="text-align: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed rgba(0, 173, 181, 0.4); font-family: 'Trebuchet MS', sans-serif; font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 2px;">
                     <span style="font-size: 1rem; font-family: 'Brush Script MT', 'Lucida Handwriting', cursive; text-transform: none; color: #ccc; letter-spacing: 1px;">System created by</span> 
                     <span style="color: var(--accent); font-weight: 900; letter-spacing: 4px; text-shadow: 0 0 10px rgba(0, 173, 181, 0.8);">AGLIEN</span>
@@ -202,22 +195,17 @@
                 <button class="btn b-stop" style="padding: 10px; border-radius: 8px; flex-direction: row; gap: 10px;" onclick="updatePin()">🔑 NDRYSHO PIN</button>
             </div>
 
-            <!-- SEKSIONI I RI I KONFIGURIMIT -->
+            <!-- SEKSIONI I KOHËVE TË PËRCAKTUARA -->
             <div class="input-group">
-                <h3>⚙️ KONFIGURIMI I HARDUERIT (ESP32)</h3>
-                <label>Pini i Startit (Aktualisht Pini 2):</label>
-                <input type="number" id="cfg-p-start" placeholder="P.sh. 2">
+                <h3>⚙️ KOHËT E MAKINËS (DIMËR/VERË)</h3>
                 
-                <label>Koha e pulsit të Startit (Në milisekonda):</label>
-                <input type="number" id="cfg-t-start" placeholder="P.sh. 500">
-
-                <label>Koha e pritjes për Kandelet (Në milisekonda):</label>
+                <label>Koha e pritjes së Kuadrit (Kandelet në ms):</label>
                 <input type="number" id="cfg-t-kandele" placeholder="Dimër p.sh. 6000, Verë 3000">
 
-                <label>Koha e mbylljes së Xhamave (Në milisekonda):</label>
+                <label>Koha e mbylljes së Xhamave (Në ms):</label>
                 <input type="number" id="cfg-t-xhamat" placeholder="P.sh. 4500">
                 
-                <button class="btn b-special" style="padding: 10px; border-radius: 8px; margin-top: 10px;" onclick="ruajHarduerin()">📡 DËRGO NË MAKINË</button>
+                <button class="btn b-special" style="padding: 10px; border-radius: 8px; margin-top: 10px;" onclick="ruajKohet()">📡 DËRGO NË MAKINË</button>
             </div>
         </div>
     </div>
@@ -268,7 +256,6 @@
         let isMqttConnected = false;
         let isEngineRunning = false; 
         
-        // --- LOGJIKA E NUMPAD & LOGIN ---
         let pinEntry = "";
         
         function addPin(num) {
@@ -328,7 +315,6 @@
             el.classList.add('active');
         }
 
-        // --- FUNKSIONET E PAMJES (APPLY CONFIG) ---
         function applyAppConfig() {
             db.ref('adminConfig').once('value').then((snap) => {
                 const cfg = snap.val();
@@ -360,7 +346,6 @@
             applyAppConfig();
         }
 
-        // --- ORET E PUNES ---
         function formatHours(dec) {
             if (!dec) return "0h 0m";
             let h = Math.floor(dec);
@@ -455,7 +440,6 @@
             fetch(url).then(() => { db.ref("statistika/ore_pune").update({ lajmerimi_derguar: true }); });
         }
 
-        // --- SERVISET ---
         function saveService() {
             const km = document.getElementById('service-km').value;
             if (!km) return alert("Vendos kilometrat!");
@@ -494,24 +478,18 @@
             });
         }
 
-        // --- KONFIGURIMI I HARDUERIT NGA APP ---
-        function ruajHarduerin() {
-            const pinStart = document.getElementById('cfg-p-start').value;
-            const tStart = document.getElementById('cfg-t-start').value;
+        // --- DERGIMI I KOHËVE TË REJA NË ESP32 ---
+        function ruajKohet() {
             const tKandele = document.getElementById('cfg-t-kandele').value;
             const tXhamat = document.getElementById('cfg-t-xhamat').value;
             
             let vonesa = 0;
             
-            if (pinStart) { setTimeout(() => sendCommand("CFG:R_START:" + pinStart), vonesa); vonesa += 1000; }
-            if (tStart) { setTimeout(() => sendCommand("CFG:T_START:" + tStart), vonesa); vonesa += 1000; }
             if (tKandele) { setTimeout(() => sendCommand("CFG:T_KANDELE:" + tKandele), vonesa); vonesa += 1000; }
             if (tXhamat) { setTimeout(() => sendCommand("CFG:T_XHAMAT:" + tXhamat), vonesa); }
             
             if(vonesa > 0) {
-                alert("Urdhrat e konfigurimit po dërgohen një e nga një! Makina do t'i ruajë automatikisht.");
-                document.getElementById('cfg-p-start').value = "";
-                document.getElementById('cfg-t-start').value = "";
+                alert("Kohët e reja po dërgohen! Makina do t'i ruajë automatikisht në memorie.");
                 document.getElementById('cfg-t-kandele').value = "";
                 document.getElementById('cfg-t-xhamat').value = "";
             } else {
@@ -519,7 +497,6 @@
             }
         }
 
-        // --- MQTT LOGJIKA ---
         function toggleKey() {
             const btn = document.getElementById('btn-key');
             btn.innerHTML = "<span>⏳</span> PRITJE...";
@@ -582,7 +559,6 @@
                     }
                 }
 
-                // Logjika e transaksionit per Oret (Offline Sync)
                 if(data.wh !== undefined && data.wh > 0) {
                     db.ref("statistika/lock_oreve").transaction(function(lockData) {
                         const tani = Date.now();
@@ -591,9 +567,7 @@
                     }, function(error, committed, snapshot) {
                         if (committed) {
                             updateWorkHours(data.wh);
-                            console.log("Orët u ruajtën me sukses:", data.wh);
                             
-                            // DËRGO KONFIRMIMIN TEK MAKINA (Që t'i fshijë nga memoria)
                             try {
                                 const msgConf = new Paho.Message("SAVED_HOURS");
                                 msgConf.destinationName = topicCmd;
@@ -667,16 +641,12 @@
                 mqttClient.send(msg);
             } catch(e) {}
             
-            // I japim 12 sekonda kohë rrjetit celular të përgjigjet
             carTimer = setTimeout(() => {
                 document.getElementById('val-online').innerText = "i30 OFFLINE";
                 document.getElementById('val-online').style.color = "var(--danger)";
             }, 12000); 
         }
 
-        // ======================================================
-        // SISTEMI I ZGJIMIT TË BUTË
-        // ======================================================
         window.onload = () => {
             loadServices();
             if (sessionStorage.getItem("isAuth")) showApp();
