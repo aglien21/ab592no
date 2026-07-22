@@ -43,7 +43,6 @@
             user-select: none;
         }
 
-        /* LIGHT / DAY DASHBOARD THEME */
         body.light-hud {
             --accent: #0066cc;
             --dash-bg: linear-gradient(135deg, rgba(235, 242, 250, 0.9), rgba(215, 225, 238, 0.95));
@@ -66,7 +65,6 @@
         .num-btn { background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 15px; font-size: 22px; border-radius: 10px; cursor: pointer; transition: 0.2s;}
         .num-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.95); }
 
-        /* DIGITAL CAR DASHBOARD CLUSTER */
         .v-screen { 
             background: var(--dash-bg); 
             backdrop-filter: blur(16px); 
@@ -113,6 +111,7 @@
         .b-blue { background: linear-gradient(145deg, rgba(0,123,255,0.75), rgba(0,86,179,0.75)); }
         .b-allclose { background: rgba(34,34,34,0.75); border: 1px solid rgba(255,255,255,0.2); }
         .b-gray { background: rgba(85,85,85,0.75); }
+        .b-ac { background: linear-gradient(145deg, rgba(0,255,255,0.5), rgba(0,150,150,0.7)); } /* Ngjyra e Butonit AC */
         .b-cyber { background: linear-gradient(145deg, rgba(0,210,255,0.3), rgba(0,100,150,0.5)); border: 1px solid var(--accent); color: var(--accent); }
 
         .input-group { text-align: left; margin-bottom: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
@@ -161,7 +160,6 @@
         <div id="screen-dash" class="screen">
             <h2 style="margin-bottom: 15px; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">PULTI KONTROLLIT <br><span id="user-greeting" style="font-size:14px; font-weight:normal; letter-spacing: 1px;"></span></h2>
             
-            <!-- DIGITAL CLUSTER DASHBOARD SCREEN -->
             <div class="v-screen">
                 <div class="dash-header">
                     <span>Created By</span>
@@ -172,6 +170,8 @@
                 <div class="v-row"><span>Niveli i Baterise:</span> <span class="v-val" id="val-battery">--.- V</span></div>
                 <div class="v-row"><span>Statusi i Motorrit:</span> <span class="v-val" id="val-engine">--</span></div>
                 <div class="v-row"><span>Statusi i Dyerve:</span> <span class="v-val" id="val-locks">--</span></div>
+                <!-- Rreshti për Kondicionerin (AC) -->
+                <div class="v-row"><span>Kondicioneri (AC):</span> <span class="v-val" id="val-ac">--</span></div>
                 <div class="v-row" id="row-key"><span>Çelesi i Servisit:</span> <span class="v-val" id="val-key">--</span></div>
                 <div class="v-row" id="row-hours1"><span>Ore Pune Sot:</span> <span class="v-val" id="val-hours-today">0.0 h</span></div>
                 <div class="v-row" id="row-hours2"><span>Ore Totale:</span> <span class="v-val" id="val-work-hours">0.0 h</span></div>
@@ -183,6 +183,9 @@
                 
                 <button class="btn b-special" id="btn-sunroof" onclick="sendCommand('SUNROOF')"><span>🪟</span> TAVANI</button>
                 <button class="btn b-special" id="btn-windows" onclick="sendCommand('WINDOWS')"><span>🪟</span> XHAMAT</button>
+
+                <!-- Butoni për AC -->
+                <button class="btn b-ac btn-full" id="btn-ac" onclick="sendCommand('AC_TOGGLE')"><span>❄️</span> NDIZ/FIK KONDICIONERIN</button>
                 
                 <button class="btn b-blue" id="btn-trip" onclick="sendCommand('TRIP_MODE')"><span>🚀</span> UDHËTIM</button>
                 <button class="btn b-blue" id="btn-gps" onclick="sendCommand('GPS')"><span>📍</span> GPS</button>
@@ -356,10 +359,6 @@
                 document.getElementById('btn-windows').style.display = 'none';
                 document.getElementById('btn-gps').style.display = 'none';
                 document.getElementById('btn-allclose').style.display = 'none';
-                
-                // Çelësi i servisit tani mbetet i dukshëm edhe për guest
-                // document.getElementById('btn-key').style.display = 'block';
-                // document.getElementById('row-key').style.display = 'flex';
                 
                 document.getElementById('btn-trip').classList.add('btn-full');
 
@@ -583,8 +582,14 @@
 
         function initMQTT() {
             if (isMqttConnected) return; 
+            
+            // Shtuar paramentri cleanSession për siguri
             mqttClient.connect({
-                useSSL: true, reconnect: true, timeout: 3, keepAliveInterval: 30,
+                useSSL: true, 
+                cleanSession: true, // Zgjidhja për komandat fantazmë (bashkë me QoS 0 më poshtë)
+                reconnect: true, 
+                timeout: 3, 
+                keepAliveInterval: 30,
                 onSuccess: () => {
                     isMqttConnected = true; mqttClient.subscribe(topicStatus);
                     document.getElementById('val-online').innerText = "ONLINE"; document.getElementById('val-online').style.color = "var(--success)";
@@ -628,7 +633,7 @@
                     }, function(error, committed, snapshot) {
                         if (committed) {
                             updateWorkHours(data.wh);
-                            try { const msgConf = new Paho.Message("SAVED_HOURS"); msgConf.destinationName = topicCmd; msgConf.qos = 1; mqttClient.send(msgConf); } catch(e) {}
+                            try { const msgConf = new Paho.Message("SAVED_HOURS"); msgConf.destinationName = topicCmd; msgConf.qos = 0; mqttClient.send(msgConf); } catch(e) {}
                         }
                     });
                 }
@@ -654,6 +659,16 @@
                         btnKey.className = "btn b-gray btn-full"; btnKey.innerHTML = "<span>🚫</span> ÇELËSI SERVISIT: JO AKTIV"; if(userRole === "admin") db.ref("statistika/celes_servisi").set(false);
                     }
                 }
+                
+                // Statusi i AC
+                if(data.ac !== undefined) {
+                    const elAc = document.getElementById('val-ac');
+                    if(data.ac === 1) {
+                        elAc.innerText = "Ndezur"; elAc.style.color = "#00ffff"; // Ngjyrë e ftohtë si AC
+                    } else if(data.ac === 0) {
+                        elAc.innerText = "Fikur"; elAc.style.color = "#aaa";
+                    }
+                }
             } catch (e) { }
         };
 
@@ -664,12 +679,29 @@
             if (cmd === 'START' || cmd === 'STOP' || cmd === 'TRIP_MODE') {
                 document.getElementById('val-engine').innerText = "PRITJE..."; document.getElementById('val-engine').style.color = "orange";
             }
-            try { const message = new Paho.Message(cmd); message.destinationName = topicCmd; message.qos = 1; mqttClient.send(message);
-            } catch (error) { alert("Lidhja po rikthehet. Prisni..."); }
+            if (cmd === 'AC_TOGGLE') {
+                document.getElementById('val-ac').innerText = "PRITJE..."; document.getElementById('val-ac').style.color = "orange";
+            }
+            
+            try { 
+                const message = new Paho.Message(cmd); 
+                message.destinationName = topicCmd; 
+                message.qos = 0; // Ndryshuar në 0 (Komandat nuk ngecin)
+                message.retained = false;
+                mqttClient.send(message);
+            } catch (error) { 
+                alert("Lidhja po rikthehet. Prisni..."); 
+            }
         };
 
         function pingCar(manual) {
-            try { const msg = new Paho.Message("REFRESH"); msg.destinationName = topicCmd; msg.qos = 1; mqttClient.send(msg); } catch(e) {}
+            try { 
+                const msg = new Paho.Message("REFRESH"); 
+                msg.destinationName = topicCmd; 
+                msg.qos = 0; 
+                msg.retained = false;
+                mqttClient.send(msg); 
+            } catch(e) {}
             carTimer = setTimeout(() => { document.getElementById('val-online').innerText = "i30 OFFLINE"; document.getElementById('val-online').style.color = "var(--danger)"; }, 12000); 
         }
 
