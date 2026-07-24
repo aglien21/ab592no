@@ -756,7 +756,7 @@
         let downPos = null;
         let flashTimer = null;
 
-        // Funksioni per ngjyren dhe hapjen korrekte te dyerve ne 3D duke perdorur pivot grupi
+        // Ruajtja e pozicioneve origjinale të mbyllura të dyerve
         window.setCarPartState = function(part, isOpenOrActive) {
             if (!carModel) return;
             carModel.traverse(obj => {
@@ -766,6 +766,13 @@
                 let isMatchDoor = (part === 'doors' && (n.includes('detach_door_l') || n.includes('detach_door_r') || n.includes('door')));
 
                 if (isMatchEngine || isMatchDoor) {
+                    // Ruajmë pozicionin/rotacionin origjinal herën e parë që ngarkohet modeli
+                    if (!obj.userData.origSaved) {
+                        obj.userData.origSaved = true;
+                        obj.userData.origPos = obj.position.clone();
+                        obj.userData.origRot = obj.rotation.clone();
+                    }
+
                     if (!obj.userData.isCloned) {
                         if (Array.isArray(obj.material)) {
                             obj.material = obj.material.map(m => m.clone());
@@ -775,7 +782,7 @@
                         obj.userData.isCloned = true;
                     }
 
-                    // Ngjyra e kuqe kur haptazi/aktivizohet
+                    // Menaxhimi i ngjyrës (e kuqe kur hapet)
                     const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
                     mats.forEach(m => {
                         if (m._trueOrigEmissive === undefined) {
@@ -795,37 +802,23 @@
                         }
                     });
 
-                    // HAPJA FIZIKE E DYERVE ME KËND DHE BOSHT TË SAKTË
+                    // HAPJA DHE MBYLLJA FIZIKE E DYERVE
                     if (isMatchDoor) {
-                        if (!obj.userData.pivotCreated && obj.parent) {
-                            obj.userData.pivotCreated = true;
+                        const isLeft = n.includes('_l_') || n.includes('l');
+                        
+                        if (isOpenOrActive) {
+                            // Kur hapen: i japim një zhvendosje dhe rrotullim të lehtë nga jashtë
+                            // duke ruajtur bazën origjinale të mbyllur
+                            obj.position.copy(obj.userData.origPos);
+                            obj.rotation.copy(obj.userData.origRot);
                             
-                            // Ruajmë pozicionin fillestar
-                            obj.geometry.computeBoundingBox();
-                            const box = obj.geometry.boundingBox;
-                            
-                            // Gjejmë nëse është dera e majtë apo e djathtë
-                            const isLeft = n.includes('_l_') || n.includes('l');
-                            
-                            // Krijojmë një grup pivot për menteshën e derës në skajin e përparmë
-                            const pivot = new THREE.Group();
-                            obj.parent.add(pivot);
-                            
-                            // Vendosim pivotin afër menteshës së derës
-                            pivot.position.copy(obj.position);
-                            
-                            // Heqim mesh-in nga prindi i vjetër dhe e futim te grupi pivot
-                            obj.position.set(isLeft ? -0.7 : 0.7, 0, 0.2); // Offset i menteshës
-                            pivot.add(obj);
-                            
-                            obj.userData.pivotGroup = pivot;
-                        }
-
-                        if (obj.userData.pivotGroup) {
-                            const isLeft = n.includes('_l_') || n.includes('l');
-                            // Këndi i saktë i hapjes së dyerve nga jashtë
-                            const targetAngle = isOpenOrActive ? (isLeft ? 0.45 : -0.45) : 0;
-                            obj.userData.pivotGroup.rotation.y = targetAngle;
+                            // Aplikojmë rrotullimin e hapjes sipas krahut
+                            const angle = isLeft ? -0.45 : 0.45;
+                            obj.rotation.y += angle;
+                        } else {
+                            // Kur mbyllen: kthehen 100% në pozicionin origjinal të ruajtur
+                            obj.position.copy(obj.userData.origPos);
+                            obj.rotation.copy(obj.userData.origRot);
                         }
                     }
                 }
