@@ -766,7 +766,7 @@
                 let isMatchDoor = (part === 'doors' && (n.includes('detach_door_l') || n.includes('detach_door_r') || n.includes('door')));
 
                 if (isMatchEngine || isMatchDoor) {
-                    // Ruajmë pozicionin/rotacionin origjinal herën e parë (kur janë të mbyllura)
+                    // Ruajmë pozicionin/rotacionin origjinal herën e parë (kur janë të mbyllura 100%)
                     if (!obj.userData.origSaved) {
                         obj.userData.origSaved = true;
                         obj.userData.origPos = obj.position.clone();
@@ -802,7 +802,7 @@
                         }
                     });
 
-                    // HAPJA DHE MBYLLJA FIZIKE E DYERVE
+                    // HAPJA DHE MBYLLJA FIZIKE E DYERVE ME KËNDE TË KORRIGJUARA PËR SECILën ANË
                     if (isMatchDoor) {
                         const isLeft = n.includes('_l_') || n.includes('l');
                         
@@ -811,9 +811,9 @@
                         obj.rotation.copy(obj.userData.origRot);
 
                         if (isOpenOrActive) {
-                            // Dera e majtë dhe e djathtë kanë boshte të pasqyruara në GLB.
-                            // Përdorim shenjën e saktë që korniza e xhamit të mos ikë mbrapsht.
-                            const angle = isLeft ? -0.42 : -0.42; 
+                            // Dera e majtë (shoferi) dhe e djathta (pasagjeri) hapen saktë
+                            // duke korrigjuar shenjën e rrotullimit për shkak të pasqyrimit në GLB
+                            const angle = isLeft ? -0.42 : 0.42; 
                             obj.rotation.y += angle;
                         }
                     }
@@ -903,7 +903,7 @@
                 const center = box.getCenter(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z) || 1;
                 
-                const scale = 7.9 / maxDim;
+                const scale = 7.9 / maxDim; // Vendosur ne 7.9 sic kërkove
                 carModel.scale.setScalar(scale);
                 carModel.position.x = -center.x * scale;
                 carModel.position.z = -center.z * scale;
