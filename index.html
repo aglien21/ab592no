@@ -744,7 +744,7 @@
     <!-- ===== 3D INTERACTIVE CAR MODEL (Three.js) ===== -->
     <script>
     (function () {
-        const MODEL_URL = "./2018_hyundai_i30_n.glb";
+        const MODEL_URL = "./i30n.glb";
 
         let scene, camera, renderer, controls, carModel, raycaster, pointer;
         let initialized = false;
@@ -756,19 +756,16 @@
         let downPos = null;
         let flashTimer = null;
 
-        // Funksioni per ngjyren dhe hapjen fizike te dyerve (rrotullimin 3D)
+        // Funksioni per ngjyren dhe hapjen korrekte te dyerve ne 3D duke perdorur pivot grupi
         window.setCarPartState = function(part, isOpenOrActive) {
             if (!carModel) return;
             carModel.traverse(obj => {
                 if (!obj.isMesh) return;
                 const n = (obj.name || '').toLowerCase();
-                let isMatch = false;
+                let isMatchEngine = (part === 'engine' && (n.includes('hood') || n.includes('bonnet') || n.includes('kapot')));
+                let isMatchDoor = (part === 'doors' && (n.includes('detach_door_l') || n.includes('detach_door_r') || n.includes('door')));
 
-                if (part === 'engine' && (n.includes('hood') || n.includes('bonnet') || n.includes('kapot'))) isMatch = true;
-                if (part === 'doors' && (n.includes('door') || n.includes('dyr') || n.includes('porta') || n.includes('detach_door'))) isMatch = true;
-
-                if (isMatch) {
-                    // Klonojmë materialin që të mos ndryshojë e gjithë makina
+                if (isMatchEngine || isMatchDoor) {
                     if (!obj.userData.isCloned) {
                         if (Array.isArray(obj.material)) {
                             obj.material = obj.material.map(m => m.clone());
@@ -778,6 +775,7 @@
                         obj.userData.isCloned = true;
                     }
 
+                    // Ngjyra e kuqe kur haptazi/aktivizohet
                     const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
                     mats.forEach(m => {
                         if (m._trueOrigEmissive === undefined) {
@@ -797,14 +795,38 @@
                         }
                     });
 
-                    // ANIMACIONI I HAPJES (Rrotullimi i dyerve në 3D)
-                    if (part === 'doors') {
-                        if (obj.userData.origRotY === undefined) {
-                            obj.userData.origRotY = obj.rotation.y;
+                    // HAPJA FIZIKE E DYERVE ME KËND DHE BOSHT TË SAKTË
+                    if (isMatchDoor) {
+                        if (!obj.userData.pivotCreated && obj.parent) {
+                            obj.userData.pivotCreated = true;
+                            
+                            // Ruajmë pozicionin fillestar
+                            obj.geometry.computeBoundingBox();
+                            const box = obj.geometry.boundingBox;
+                            
+                            // Gjejmë nëse është dera e majtë apo e djathtë
+                            const isLeft = n.includes('_l_') || n.includes('l');
+                            
+                            // Krijojmë një grup pivot për menteshën e derës në skajin e përparmë
+                            const pivot = new THREE.Group();
+                            obj.parent.add(pivot);
+                            
+                            // Vendosim pivotin afër menteshës së derës
+                            pivot.position.copy(obj.position);
+                            
+                            // Heqim mesh-in nga prindi i vjetër dhe e futim te grupi pivot
+                            obj.position.set(isLeft ? -0.7 : 0.7, 0, 0.2); // Offset i menteshës
+                            pivot.add(obj);
+                            
+                            obj.userData.pivotGroup = pivot;
                         }
-                        // Zmadho ose zvogëlo këndin 0.4 sipas dëshirës për sa gjerë do t'i hapësh dyert
-                        const targetRot = isOpenOrActive ? (n.includes('l') ? obj.userData.origRotY - 0.45 : obj.userData.origRotY + 0.45) : obj.userData.origRotY;
-                        obj.rotation.y = targetRot;
+
+                        if (obj.userData.pivotGroup) {
+                            const isLeft = n.includes('_l_') || n.includes('l');
+                            // Këndi i saktë i hapjes së dyerve nga jashtë
+                            const targetAngle = isOpenOrActive ? (isLeft ? 0.45 : -0.45) : 0;
+                            obj.userData.pivotGroup.rotation.y = targetAngle;
+                        }
                     }
                 }
             });
@@ -892,7 +914,7 @@
                 const center = box.getCenter(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z) || 1;
                 
-                const scale = 7.9 / maxDim;
+                const scale = 5.2 / maxDim;
                 carModel.scale.setScalar(scale);
                 carModel.position.x = -center.x * scale;
                 carModel.position.z = -center.z * scale;
