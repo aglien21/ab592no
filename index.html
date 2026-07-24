@@ -57,27 +57,29 @@
         body.light-hud .v-screen { color: #003366; }
         body.light-hud .v-val { color: #001f3f; }
 
-        .overlay { background: rgba(0, 0, 0, 0.5); min-height: 100vh; padding: 20px; padding-bottom: 80px; }
+        /* ZGJERIMI I HAPËSIRËS PËR TË MBUSHUR BOSHLLOQET ANASH */
+        .overlay { background: rgba(0, 0, 0, 0.5); min-height: 100vh; padding: 12px; padding-bottom: 80px; }
         
-        .screen { display: none; text-align: center; max-width: 450px; margin: 0 auto; }
+        .screen { display: none; text-align: center; max-width: 520px; width: 100%; margin: 0 auto; box-sizing: border-box; }
         .screen.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        #screen-login.active { display: flex; flex-direction: column; align-items: center; min-height: 85vh; }
+        #screen-login.active { display: flex; flex-direction: column; align-items: center; min-height: 85vh; max-width: 450px; }
         .logo-login { width: 120px; height: 120px; border-radius: 20%; margin-bottom: 20px; border: 2px solid var(--accent); object-fit: cover; box-shadow: 0 4px 15px var(--dash-glow); }
         #pin-input { background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border: 1px solid var(--accent); color: white; font-size: 24px; padding: 15px; border-radius: 10px; width: 200px; text-align: center; margin-bottom: 20px; letter-spacing: 10px; outline: none;}
         .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 280px; margin-top: auto; margin-bottom: 20px; }
         .num-btn { background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 15px; font-size: 22px; border-radius: 10px; cursor: pointer; transition: 0.2s;}
         .num-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.95); }
 
+        /* EKRANI VIRTUAL MË KOMPAKT DHE I ZGJERUAR */
         .v-screen { 
             background: var(--dash-bg); 
             backdrop-filter: blur(16px); 
             -webkit-backdrop-filter: blur(16px); 
             border: 2px solid var(--dash-border); 
-            border-radius: 16px; 
-            padding: 18px; 
-            margin-bottom: 20px; 
+            border-radius: 14px; 
+            padding: 12px 15px; 
+            margin-bottom: 15px; 
             text-align: left; 
             font-family: 'Courier New', Courier, monospace; 
             color: var(--accent); 
@@ -90,22 +92,22 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid var(--dash-border);
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-            font-size: 11px;
+            padding-bottom: 5px;
+            margin-bottom: 8px;
+            font-size: 10px;
             letter-spacing: 2px;
             font-weight: bold;
             color: #888;
         }
 
-        .v-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 6px;}
+        .v-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; font-size: 13px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px;}
         .v-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
-        .v-val { font-weight: bold; color: #fff; text-shadow: 0 0 8px var(--accent); font-size: 15px; }
+        .v-val { font-weight: bold; color: #fff; text-shadow: 0 0 8px var(--accent); font-size: 14px; }
 
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn-full { grid-column: span 2; }
-        .btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 15px 5px; font-size: 15px; font-weight: bold; color: white; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: 0.2s; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-        .btn span { font-size: 22px; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 14px 5px; font-size: 14px; font-weight: bold; color: white; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: 0.2s; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        .btn span { font-size: 20px; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .btn:active { transform: scale(0.95); }
         
         .b-start { background: linear-gradient(145deg, rgba(40,167,69,0.75), rgba(30,126,52,0.75)); } 
@@ -139,14 +141,14 @@
         .guest-pin { font-size: 15px; font-weight: bold; }
         .btn-delete { background: var(--danger); border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
-        /* ===== 3D INTERACTIVE CAR VIEWER ===== */
+        /* ===== 3D INTERACTIVE CAR VIEWER MË I GJERË DHE I OPTIMIZUAR ===== */
         #car-3d-viewer {
             width: 100%;
-            height: 320px;
+            height: 340px;
             background: radial-gradient(circle at center, rgba(0,210,255,0.10), rgba(0,0,0,0.6));
             border: 2px solid var(--dash-border);
             border-radius: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             position: relative;
             overflow: hidden;
             box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 0 20px var(--dash-glow);
@@ -157,15 +159,15 @@
         }
         #car-3d-canvas { width: 100%; height: 100%; display: block; }
         #car-3d-hint {
-            position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-            font-size: 11px; color: var(--accent); letter-spacing: 1px;
-            background: rgba(0,0,0,0.5); padding: 4px 12px; border-radius: 10px; pointer-events: none;
+            position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+            font-size: 10px; color: var(--accent); letter-spacing: 1px;
+            background: rgba(0,0,0,0.5); padding: 3px 10px; border-radius: 8px; pointer-events: none;
             white-space: nowrap; text-align: center;
         }
         #car-3d-feedback {
-            position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
-            font-size: 13px; color: #fff; background: rgba(0,0,0,0.78);
-            padding: 7px 16px; border-radius: 12px; border: 1px solid var(--accent);
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            font-size: 12px; color: #fff; background: rgba(0,0,0,0.78);
+            padding: 6px 14px; border-radius: 10px; border: 1px solid var(--accent);
             opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
             box-shadow: 0 0 12px var(--dash-glow);
         }
@@ -187,8 +189,8 @@
         
         <!-- EKRANI LOGIN -->
         <div id="screen-login" class="screen active">
-            <h2 style="margin-top: 30px; letter-spacing: 2px; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">i30 <span style="color: var(--accent);">DIGITAL REMOTE</span></h2>
-            <div style="margin-top: 15px; font-family: 'Brush Script MT', 'Lucida Handwriting', cursive; font-size: 1.3rem; color: #aaa; letter-spacing: 1px;">
+            <h2 style="margin-top: 20px; letter-spacing: 2px; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">i30 <span style="color: var(--accent);">DIGITAL REMOTE</span></h2>
+            <div style="margin-top: 10px; font-family: 'Brush Script MT', 'Lucida Handwriting', cursive; font-size: 1.2rem; color: #aaa; letter-spacing: 1px;">
                 Created by <span style="color: var(--accent); text-shadow: 0 0 8px rgba(0,210,255,0.5);">Aglien</span>
             </div>
             <img id="login-logo-img" src="./logo.png" class="logo-login">
@@ -204,13 +206,13 @@
 
         <!-- EKRANI DASHBOARD -->
         <div id="screen-dash" class="screen">
-            <h2 style="margin-bottom: 15px; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">PULTI KONTROLLIT <br><span id="user-greeting" style="font-size:14px; font-weight:normal; letter-spacing: 1px;"></span></h2>
+            <h2 style="margin-top: 5px; margin-bottom: 10px; font-size: 1.3rem; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">PULTI KONTROLLIT <br><span id="user-greeting" style="font-size:13px; font-weight:normal; letter-spacing: 1px;"></span></h2>
             
-            <!-- DIGITAL CLUSTER DASHBOARD SCREEN (KALUAR LART) -->
+            <!-- DIGITAL CLUSTER DASHBOARD SCREEN MË KOMPAKT LART -->
             <div class="v-screen">
                 <div class="dash-header">
                     <span>Created By</span>
-                    <span style="font-family: 'Brush Script MT', cursive; font-size: 0.9rem; text-transform: none; color: var(--accent);">AGLIEN</span>
+                    <span style="font-family: 'Brush Script MT', cursive; font-size: 0.85rem; text-transform: none; color: var(--accent);">AGLIEN</span>
                 </div>
 
                 <div class="v-row"><span>Statusi i Rrjetit:</span> <span class="v-val" id="val-online" style="color:orange">Duke u lidhur...</span></div>
@@ -222,7 +224,7 @@
                 <div class="v-row" id="row-hours2"><span>Ore Totale:</span> <span class="v-val" id="val-work-hours">0.0 h</span></div>
             </div>
 
-            <!-- 3D INTERACTIVE CAR (KALUAR POSHTE EKRANIT) -->
+            <!-- 3D INTERACTIVE CAR POSHTË EKRANIT VIRTUAL -->
             <div id="car-3d-viewer">
                 <div id="car-3d-hint">🚗 Prek pjesën për ta kontrolluar &nbsp;•&nbsp; Lëviz për të rrotulluar</div>
                 <canvas id="car-3d-canvas"></canvas>
@@ -744,7 +746,8 @@
     <!-- ===== 3D INTERACTIVE CAR MODEL (Three.js) ===== -->
     <script>
     (function () {
-        const MODEL_URL = "./2018_hyundai_i30_n.glb";
+        const MODEL_URL = "./i30n.glb"; // Ose vendos linkun direkt nese e ke ne cloud
+
         let scene, camera, renderer, controls, carModel, raycaster, pointer;
         let initialized = false;
         const canvas = document.getElementById('car-3d-canvas');
@@ -842,7 +845,7 @@
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
             
-            // POZICIONI I RI I KAMERAS (Kend i ngritur ballor-majtas per dukshmeri maksimale te te gjitha pjeseve)
+            // Këndi i kameras
             camera.position.set(-5, 4.5, 6);
 
             renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -880,8 +883,8 @@
                 const center = box.getCenter(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z) || 1;
                 
-                // SHKALLA E RE (Pak me e zmadhuar)
-                const scale = 7.5 / maxDim;
+                // ZmAdhuari modelit ( Mund ta ndryshosh p.sh ne 5.5 nese e do edhe me te madhe )
+                const scale = 5.2 / maxDim;
                 carModel.scale.setScalar(scale);
                 carModel.position.x = -center.x * scale;
                 carModel.position.z = -center.z * scale;
@@ -898,7 +901,7 @@
                 window.setCarPartColor('doors', lockText.includes('HAPUR'));
 
             }, undefined, (err) => {
-                loadingEl.innerHTML = "⚠️ Modeli 3D nuk u ngarkua.<br><small>Kontrollo URL-në e .glb</small>";
+                loadingEl.innerHTML = "⚠️ Modeli 3D nuk u ngarkua.<br><small>Kontrollo skedarin .glb</small>";
                 console.error(err);
             });
 
@@ -956,11 +959,11 @@
                     sendCommand('LOCK'); showFeedback('🔒 Duke mbyllur dyert...');
                 }
             } else if (part === 'engine') {
-                // LOGJIKA E RE PER KAPAKUN E MOTORRIT
+                // LOGJIKA E KPAKUT TË MOTORRIT (Ndezur -> Fik & Kyç | Fikur -> Trip Mode)
                 const engText = document.getElementById('val-engine').innerText;
                 if (engText === 'Ndezur' || (typeof isEngineRunning !== 'undefined' && isEngineRunning)) {
                     sendCommand('STOP');
-                    setTimeout(() => { sendCommand('LOCK'); }, 500); // 0.5 sekonda vonese per te mos u perplasur komandat
+                    setTimeout(() => { sendCommand('LOCK'); }, 500); 
                     showFeedback('🛑 Motorri u fik & Dyert u kyçën!');
                 } else {
                     sendCommand('TRIP_MODE');
