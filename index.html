@@ -38,7 +38,7 @@
             flex-direction: column;
         }
 
-        .screen { display: none; width: 100%; height: 100vh; flex-direction: column; align-items: center; }
+        .screen { display: none; width: 100%; min-height: 100vh; flex-direction: column; align-items: center; padding-bottom: 80px; box-sizing: border-box; }
         .screen.active { display: flex; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -48,8 +48,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 20px;
-            margin-top: 20px;
+            padding: 12px 15px;
+            margin-top: 15px;
             background: rgba(255, 255, 255, 0.03);
             border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -59,38 +59,34 @@
         }
         .hud-item { display: flex; flex-direction: column; }
         .hud-label { font-size: 10px; color: #888; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px;}
-        .hud-value { font-size: 18px; font-weight: bold; font-family: monospace; color: #fff; }
+        .hud-value { font-size: 16px; font-weight: bold; font-family: monospace; color: #fff; }
         .hud-online { color: var(--accent); text-shadow: 0 0 10px rgba(0,210,255,0.4); }
 
         /* CAR SVG INTERACTIVE ZONE */
         .car-container {
-            flex-grow: 1;
             width: 100%;
+            flex-grow: 1;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
+            margin: 10px 0;
         }
 
         .car-svg {
-            width: 75%;
-            max-width: 350px;
+            width: 70%;
+            max-width: 300px;
             filter: drop-shadow(0 20px 40px rgba(0,0,0,0.8));
         }
 
         .part { cursor: pointer; transition: all 0.3s ease; }
-        
-        /* HOVER & ACTIVE EFFECTS */
         .part:active { filter: brightness(1.5); }
-        .part-label { font-size: 14px; font-weight: 600; fill: rgba(255,255,255,0.4); text-anchor: middle; font-family: sans-serif; pointer-events: none; transition: 0.3s; }
-        .part:active .part-label { fill: #fff; }
-
+        .part-label { font-size: 13px; font-weight: 600; fill: rgba(255,255,255,0.4); text-anchor: middle; font-family: sans-serif; pointer-events: none; transition: 0.3s; }
+        
         /* DYNAMIC STATUS CLASSES */
         .engine-on { fill: #1e3b26 !important; stroke: var(--success) !important; filter: drop-shadow(0 0 15px rgba(52, 199, 89, 0.4)); }
         .engine-on-text { fill: var(--success) !important; }
-        
         .door-open { stroke: var(--danger) !important; stroke-width: 3 !important; filter: drop-shadow(0 0 10px rgba(255, 59, 48, 0.5)); }
-        
         .ac-on { fill: #1e3340 !important; stroke: var(--accent) !important; filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.4)); }
 
         /* QUICK ACTION BUTTONS (BOTTOM) */
@@ -98,32 +94,47 @@
             width: 90%;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 12px;
+            margin-bottom: 10px;
         }
         .btn {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
             color: white;
-            padding: 15px;
+            padding: 12px;
             border-radius: 12px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             display: flex;
             flex-direction: column;
             align-items: center;
             backdrop-filter: blur(5px);
             transition: 0.2s;
+            cursor: pointer;
         }
-        .btn span { font-size: 20px; margin-bottom: 5px; }
+        .btn span { font-size: 18px; margin-bottom: 3px; }
         .btn:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
-        .btn-full { grid-column: span 2; background: rgba(30,30,30,0.8); }
+        .btn-full { grid-column: span 2; background: rgba(30,30,30,0.8); flex-direction: row; justify-content: center; gap: 10px;}
 
-        /* LOGIN SCREEN STYLES */
-        #screen-login { justify-content: center; background: #050608; }
+        /* SERV SCREEN STYLES */
+        .input-group { width: 90%; text-align: left; margin-top: 15px; background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; }
+        .input-group h3 { margin-top: 0; color: var(--accent); font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
+        .input-group label { display: block; font-size: 11px; color: #aaa; margin-top: 8px; }
+        input[type="text"], input[type="number"], input[type="password"] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--accent); background: rgba(0,0,0,0.7); color: #fff; font-size: 14px; margin-top: 5px; outline: none; box-sizing: border-box;}
+        .guest-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 6px; margin-top: 6px; font-size: 13px; }
+        .btn-delete { background: var(--danger); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+        /* NAVIGATION BAR */
+        .nav-bar { display: none; justify-content: space-around; background: rgba(10,12,16,0.95); padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1); position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; backdrop-filter: blur(15px); }
+        .nav-icon { font-size: 20px; cursor: pointer; color: #777; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
+        .nav-icon span { font-size: 9px; margin-top: 2px; font-weight: bold; }
+        .nav-icon.active { color: var(--accent); transform: translateY(-2px); }
+
+        /* LOGIN SCREEN */
+        #screen-login { justify-content: center; background: #050608; padding-bottom: 0; }
         #pin-input { background: rgba(255,255,255,0.05); border: 1px solid var(--accent); color: white; font-size: 24px; padding: 15px; border-radius: 10px; width: 200px; text-align: center; margin-bottom: 30px; letter-spacing: 15px; outline: none;}
         .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 280px; }
-        .num-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 20px; font-size: 22px; border-radius: 50%; cursor: pointer; transition: 0.2s;}
+        .num-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 18px; font-size: 20px; border-radius: 50%; cursor: pointer; transition: 0.2s;}
         .num-btn:active { background: rgba(255,255,255,0.2); transform: scale(0.9); }
     </style>
 </head>
@@ -131,22 +142,20 @@
 
     <!-- EKRANI LOGIN -->
     <div id="screen-login" class="screen active">
-        <h2 style="color: #fff; font-weight:300; letter-spacing: 5px; margin-bottom: 50px;">i30 <span style="font-weight: bold;">REMOTE</span></h2>
+        <h2 style="color: #fff; font-weight:300; letter-spacing: 5px; margin-bottom: 30px;">i30 <span style="font-weight: bold;">REMOTE</span></h2>
         <input type="password" id="pin-input" readonly placeholder="••••">
         <div class="numpad">
             <button class="num-btn" onclick="addPin('1')">1</button><button class="num-btn" onclick="addPin('2')">2</button><button class="num-btn" onclick="addPin('3')">3</button>
             <button class="num-btn" onclick="addPin('4')">4</button><button class="num-btn" onclick="addPin('5')">5</button><button class="num-btn" onclick="addPin('6')">6</button>
             <button class="num-btn" onclick="addPin('7')">7</button><button class="num-btn" onclick="addPin('8')">8</button><button class="num-btn" onclick="addPin('9')">9</button>
-            <button class="num-btn" style="color: var(--danger); font-size:16px;" onclick="clearPin()">FSHI</button>
+            <button class="num-btn" style="color: var(--danger); font-size:14px;" onclick="clearPin()">FSHI</button>
             <button class="num-btn" onclick="addPin('0')">0</button>
-            <button class="num-btn" style="color: var(--accent); font-size:16px;" onclick="checkLogin()">OK</button>
+            <button class="num-btn" style="color: var(--accent); font-size:14px;" onclick="checkLogin()">OK</button>
         </div>
     </div>
 
-    <!-- EKRANI KRYESOR (MAKINA INTERAKTIVE) -->
+    <!-- EKRANI DASHBOARD (PULTI INTERAKTIV) -->
     <div id="screen-dash" class="screen">
-        
-        <!-- HUD (Voltazhi & Statusi) -->
         <div class="hud-top">
             <div class="hud-item">
                 <span class="hud-label">Bateria</span>
@@ -157,80 +166,113 @@
                 <span class="hud-value hud-online" id="hud-online">LIDHJA...</span>
             </div>
             <div class="hud-item" style="text-align: right;">
-                <span class="hud-label">Motorri (Kohë)</span>
+                <span class="hud-label">Orët Motorrit</span>
                 <span class="hud-value" id="hud-hours">0.0 H</span>
             </div>
         </div>
 
-        <!-- MAKINA SVG E PREKSHME -->
         <div class="car-container">
             <svg class="car-svg" viewBox="0 0 300 650" xmlns="http://www.w3.org/2000/svg">
-                <!-- Gomat -->
                 <rect x="25" y="110" width="20" height="60" rx="5" fill="#050608"/>
                 <rect x="255" y="110" width="20" height="60" rx="5" fill="#050608"/>
                 <rect x="25" y="470" width="20" height="60" rx="5" fill="#050608"/>
                 <rect x="255" y="470" width="20" height="60" rx="5" fill="#050608"/>
-
-                <!-- Trupi Kryesor (Silueta) -->
                 <path d="M 50 100 C 50 20, 250 20, 250 100 L 260 520 C 260 600, 40 600, 40 520 Z" fill="var(--car-body)" stroke="#111" stroke-width="3"/>
 
-                <!-- 1. MOTORRI (KOFSHA) - KLIKO KËTU -->
+                <!-- MOTORRI -->
                 <g class="part" id="btn-hood" onclick="toggleEngine()">
                     <path id="svg-hood" d="M 55 150 Q 150 110 245 150 L 230 60 C 210 35, 90 35, 70 60 Z" fill="#24272c" stroke="var(--car-stroke)" stroke-width="2"/>
                     <text id="txt-hood" x="150" y="115" class="part-label">MOTORRI</text>
                 </g>
 
-                <!-- Xhami i Përparmë -->
                 <path d="M 60 220 Q 150 180 240 220 L 220 280 L 80 280 Z" fill="var(--glass)"/>
 
-                <!-- 2. TAVANI (SUNROOF) - KLIKO KËTU -->
+                <!-- TAVANI -->
                 <g class="part" onclick="uiCommand('SUNROOF')">
                     <rect x="100" y="300" width="100" height="70" rx="8" fill="#11151a" stroke="var(--car-stroke)" stroke-width="2"/>
                     <text x="150" y="340" class="part-label">TAVANI</text>
                 </g>
 
-                <!-- 3. XHAMAT ANËSORË - KLIKO KËTU -->
+                <!-- XHAMAT -->
                 <g class="part" onclick="uiCommand('WINDOWS')">
                     <path d="M 55 230 L 75 280 L 75 420 L 55 450 Z" fill="var(--glass)"/>
                     <path d="M 245 230 L 225 280 L 225 420 L 245 450 Z" fill="var(--glass)"/>
-                    <text x="150" y="410" class="part-label" style="font-size: 12px;">XHAMAT</text>
+                    <text x="150" y="410" class="part-label" style="font-size: 11px;">XHAMAT</text>
                 </g>
 
-                <!-- 4. DYERT ANËSORE - KLIKO KËTU -->
+                <!-- DYERT -->
                 <g class="part" onclick="toggleDoors()">
-                    <!-- Këto vija përfaqësojnë anësoret e dyerve -->
                     <path id="svg-doors-l" d="M 45 230 L 52 230 L 52 450 L 45 450 Z" fill="#24272c" stroke="var(--car-stroke)" stroke-width="1"/>
                     <path id="svg-doors-r" d="M 255 230 L 248 230 L 248 450 L 255 450 Z" fill="#24272c" stroke="var(--car-stroke)" stroke-width="1"/>
                     <text x="150" y="460" class="part-label">DYERT</text>
                 </g>
 
-                <!-- 5. KONDICIONERI (KABINA QENDRORE) -->
+                <!-- KONDICIONERI (AC) -->
                 <g class="part" id="btn-ac" onclick="uiCommand('AC_TOGGLE')">
                     <circle cx="150" cy="490" r="25" fill="#24272c" stroke="var(--car-stroke)" stroke-width="2"/>
-                    <text id="txt-ac" x="150" y="495" class="part-label" style="font-size:12px;">AC</text>
+                    <text id="txt-ac" x="150" y="495" class="part-label" style="font-size:11px;">AC</text>
                 </g>
 
-                <!-- Xhami i Pasmë -->
                 <path d="M 75 430 Q 150 460 225 430 L 240 480 Q 150 510 60 480 Z" fill="var(--glass)"/>
             </svg>
         </div>
 
-        <!-- QUICK BUTTONS POSHTË (TË NEVOJSHME) -->
         <div class="action-bar">
-            <div class="btn" onclick="uiCommand('TRIP_MODE')">
-                <span>🚀</span> Udhëtim
-            </div>
-            <div class="btn" onclick="uiCommand('GPS')">
-                <span>📍</span> Gjej Makinën
-            </div>
-            <div class="btn btn-full" onclick="uiCommand('ALL_CLOSE')" style="flex-direction: row; gap: 15px;">
-                <span>🛡️</span> MBYLLJE TOTALE E SIGURT
-            </div>
+            <div class="btn" onclick="uiCommand('TRIP_MODE')"><span>🚀</span> Udhëtim</div>
+            <div class="btn" onclick="uiCommand('GPS')"><span>📍</span> Gjej Makinën</div>
+            <div class="btn btn-full" onclick="uiCommand('ALL_CLOSE')"><span>🛡️</span> MBYLLJE TOTALE E SIGURT</div>
         </div>
     </div>
 
+    <!-- EKRANI CILËSIME & SERVISE -->
+    <div id="screen-serv" class="screen">
+        <h2 style="color: #fff; font-size: 18px; margin-top: 20px;">SISTEMI & SERVISET</h2>
+        
+        <!-- ÇELËSI I SERVISIT -->
+        <div class="input-group">
+            <h3>🔑 MODALITETI SERVIS</h3>
+            <div style="display:flex; gap:10px;">
+                <button class="btn" style="background:#8e44ad; flex:1;" onclick="uiCommand('KEY_ON')"><span>🔓</span> NDIZ ÇELËSIN</button>
+                <button class="btn" style="background:#555; flex:1;" onclick="uiCommand('KEY_OFF')"><span>🔒</span> FIK ÇELËSIN</button>
+            </div>
+        </div>
+
+        <!-- ORËT E MOTORRIT -->
+        <div class="input-group">
+            <h3>⏳ MENAXHIMI I ORËVE</h3>
+            <p style="font-size:12px; color:#aaa; margin:5px 0;">Totali i orëve: <span id="serv-total-hours" style="color:var(--accent); font-weight:bold;">0.0 H</span></p>
+            <button class="btn btn-full" style="background:var(--danger); margin-top:8px; padding:10px;" onclick="if(confirm('Je i sigurt që do t\'i zerosh orët?')) { uiCommand('ZERO_HOURS'); }">🔄 ZERO ORËT E MOTORRIT</button>
+        </div>
+
+        <!-- KOHËT E MAKINËS -->
+        <div class="input-group">
+            <h3>⚙️ KOHËT E MAKINËS (MS)</h3>
+            <label>Koha e Kandeleve:</label>
+            <input type="number" id="cfg-t-kandele" placeholder="3000">
+            <label>Koha e Xhamave:</label>
+            <input type="number" id="cfg-t-xhamat" placeholder="4500">
+            <button class="btn btn-full" style="background:var(--accent); color:#000; margin-top:10px; padding:10px;" onclick="ruajKohet()">📡 RUAJ & DËRGO</button>
+        </div>
+
+        <!-- SHTO PËRDORUES (GUEST PIN) -->
+        <div class="input-group">
+            <h3>👥 PËRDORUESIT E TJERË</h3>
+            <input type="text" id="new-guest-name" placeholder="Emri (p.sh. Vëllai)">
+            <input type="number" id="new-guest-pin" placeholder="PIN (4 shifra)">
+            <button class="btn btn-full" style="background:var(--success); margin-top:10px; padding:10px;" onclick="addGuestPin()">➕ SHTO PËRDORUESIN</button>
+            <div id="guest-list" style="margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <!-- NAVIGATION BAR -->
+    <div class="nav-bar" id="navbar" style="display:none;">
+        <div class="nav-icon active" onclick="switchTab('screen-dash', this)">🚘<span>PULTI</span></div>
+        <div class="nav-icon" id="nav-serv" onclick="switchTab('screen-serv', this)">⚙️<span>SERVISET</span></div>
+        <div class="nav-icon" onclick="location.reload()">🔄<span>REFRESH</span></div>
+        <div class="nav-icon" style="color: var(--danger);" onclick="logout()">🚪<span>DIL</span></div>
+    </div>
+
     <script>
-        // CONFIGURIMET FIREBASE (Vendos të tuat)
         const firebaseConfig = {
             apiKey: "AIzaSyB5vAdwGuUd7oFjhxsyhuUSH84TXXSbtQo",
             authDomain: "ab592no.firebaseapp.com",
@@ -240,60 +282,68 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
 
-        // MQTT CONFIG
         const topicCmd = "jon_i30_S3kr3t_998877/komanda";
         const topicStatus = "jon_i30_S3kr3t_998877/statusi";
         const mqttClient = new Paho.Client("broker.hivemq.com", 8884, "App_" + Math.random().toString(16).slice(2, 8));
 
-        let isMqttConnected = false;
-        let carTimer;
-        let pinEntry = "";
-        
-        // Gjendjet lokale për UI
-        let engineIsOn = false;
-        let doorsLocked = true;
+        let isMqttConnected = false, carTimer, pinEntry = "";
+        let engineIsOn = false, doorsLocked = true;
 
-        // FUNKSIONET E LOGIN PIN
         function addPin(num) {
             if(pinEntry.length < 4) { pinEntry += num; document.getElementById('pin-input').value = pinEntry; }
         }
         function clearPin() { pinEntry = ""; document.getElementById('pin-input').value = ""; }
+
         function checkLogin() {
             if(pinEntry.length < 1) return;
-            db.ref('adminConfig/password').once('value').then((snap) => {
-                if (String(pinEntry) === String(snap.val())) {
-                    sessionStorage.setItem("isAuth", "true"); 
-                    showApp();
-                } else { alert("PIN i gabuar!"); clearPin(); }
+            db.ref('adminConfig/password').once('value').then((snapAdmin) => {
+                if (String(pinEntry) === String(snapAdmin.val())) {
+                    sessionStorage.setItem("isAuth", "true"); sessionStorage.setItem("role", "admin"); showApp();
+                } else {
+                    db.ref('guestUsers/' + pinEntry).once('value').then((snapGuest) => {
+                        if (snapGuest.exists()) {
+                            sessionStorage.setItem("isAuth", "true"); sessionStorage.setItem("role", "guest");
+                            sessionStorage.setItem("guestName", snapGuest.val()); showApp();
+                        } else { alert("PIN i gabuar!"); clearPin(); }
+                    });
+                }
             });
         }
 
         function showApp() {
             document.getElementById('screen-login').classList.remove('active');
             document.getElementById('screen-dash').classList.add('active');
+            document.getElementById('navbar').style.display = 'flex';
+            
+            if (sessionStorage.getItem("role") === "guest") {
+                document.getElementById('nav-serv').style.display = 'none'; // Guest s'ka akses te serviset
+            }
             initMQTT();
+            loadGuests();
         }
 
-        // FUNKSIONET MQTT
+        function logout() { sessionStorage.clear(); location.reload(); }
+        
+        function switchTab(screenId, el) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-icon').forEach(i => i.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active'); el.classList.add('active');
+        }
+
         function initMQTT() {
             if (isMqttConnected) return; 
-            document.getElementById('hud-online').innerText = "LIDHJA...";
-            document.getElementById('hud-online').style.color = "orange";
-
             mqttClient.connect({
                 useSSL: true, cleanSession: true, reconnect: true, timeout: 3, keepAliveInterval: 30,
                 onSuccess: () => {
-                    isMqttConnected = true; 
-                    mqttClient.subscribe(topicStatus);
+                    isMqttConnected = true; mqttClient.subscribe(topicStatus);
                     document.getElementById('hud-online').innerText = "ONLINE"; 
                     document.getElementById('hud-online').style.color = "var(--accent)";
-                    uiCommand("REFRESH"); // Kërko statusin menjëherë
+                    uiCommand("REFRESH");
                 },
                 onFailure: () => { isMqttConnected = false; setTimeout(initMQTT, 3000); }
             });
         }
 
-        // LEXIMI I STATUSIT NGA MAKINA & NDRYSHIMI I SVG
         mqttClient.onMessageArrived = (msg) => {
             clearTimeout(carTimer);
             document.getElementById('hud-online').innerText = "ONLINE"; 
@@ -302,93 +352,99 @@
             try {
                 const data = JSON.parse(msg.payloadString);
                 
-                // Përditëso Voltazhin
                 if(data.v !== undefined) {
                     const elBat = document.getElementById('hud-battery');
                     elBat.innerText = data.v.toFixed(1) + " V"; 
                     elBat.style.color = (data.v > 12.0) ? "#fff" : "var(--danger)";
                 }
 
-                // Përditëso Orët
                 if(data.th !== undefined) {
-                    document.getElementById('hud-hours').innerText = parseFloat(data.th).toFixed(1) + " H";
+                    const hStr = parseFloat(data.th).toFixed(1) + " H";
+                    document.getElementById('hud-hours').innerText = hStr;
+                    document.getElementById('serv-total-hours').innerText = hStr;
                 }
 
-                // Përditëso Motorrin (Ngjyros Kofshën)
                 if(data.e !== undefined) {
                     engineIsOn = (data.e === 1);
                     const hoodSvg = document.getElementById('svg-hood');
                     const txtHood = document.getElementById('txt-hood');
                     if(engineIsOn) {
-                        hoodSvg.classList.add('engine-on');
-                        txtHood.classList.add('engine-on-text');
-                        txtHood.textContent = "NDEZUR";
+                        hoodSvg.classList.add('engine-on'); txtHood.classList.add('engine-on-text'); txtHood.textContent = "NDEZUR";
                     } else {
-                        hoodSvg.classList.remove('engine-on');
-                        txtHood.classList.remove('engine-on-text');
-                        txtHood.textContent = "MOTORRI";
+                        hoodSvg.classList.remove('engine-on'); txtHood.classList.remove('engine-on-text'); txtHood.textContent = "MOTORRI";
                     }
                 }
 
-                // Përditëso Dyert (Ngjyros Anësoret)
                 if(data.l !== undefined) {
                     doorsLocked = (data.l === 1);
                     const dL = document.getElementById('svg-doors-l');
                     const dR = document.getElementById('svg-doors-r');
-                    if(doorsLocked) {
-                        dL.classList.remove('door-open'); dR.classList.remove('door-open');
-                    } else {
-                        dL.classList.add('door-open'); dR.classList.add('door-open');
-                    }
+                    if(doorsLocked) { dL.classList.remove('door-open'); dR.classList.remove('door-open'); }
+                    else { dL.classList.add('door-open'); dR.classList.add('door-open'); }
                 }
 
-                // Përditëso AC (Ngjyros Butonin qendror)
                 if(data.ac !== undefined) {
                     const btnAC = document.getElementById('btn-ac');
                     const txtAC = document.getElementById('txt-ac');
-                    if(data.ac === 1) {
-                        btnAC.classList.add('ac-on'); txtAC.textContent = "AC (ON)";
-                    } else {
-                        btnAC.classList.remove('ac-on'); txtAC.textContent = "AC (OFF)";
-                    }
+                    if(data.ac === 1) { btnAC.classList.add('ac-on'); txtAC.textContent = "AC (ON)"; }
+                    else { btnAC.classList.remove('ac-on'); txtAC.textContent = "AC (OFF)"; }
                 }
-
             } catch (e) {}
 
-            // Fik pas 12 sekondash heshtje
             carTimer = setTimeout(() => { 
                 document.getElementById('hud-online').innerText = "OFFLINE"; 
                 document.getElementById('hud-online').style.color = "var(--danger)"; 
             }, 12000); 
         };
 
-        // DËRGIMI I KOMANDAVE (Kur klikon SVG)
         window.uiCommand = (cmd) => {
             try { 
                 const message = new Paho.Message(cmd); 
                 message.destinationName = topicCmd; 
-                message.qos = 0; message.retained = false;
                 mqttClient.send(message);
-                
-                // Efekt vizual haptic për çdo komandë
                 if (navigator.vibrate) navigator.vibrate(50);
             } catch (error) { alert("Duke pritur lidhjen..."); }
         };
 
-        // Logjika Smart për butonat e makinës
-        window.toggleEngine = () => {
-            if(engineIsOn) { uiCommand("STOP"); } 
-            else { uiCommand("START"); }
-        };
+        window.toggleEngine = () => { if(engineIsOn) { uiCommand("STOP"); } else { uiCommand("START"); } };
+        window.toggleDoors = () => { if(doorsLocked) { uiCommand("UNLOCK"); } else { uiCommand("LOCK"); } };
 
-        window.toggleDoors = () => {
-            if(doorsLocked) { uiCommand("UNLOCK"); } 
-            else { uiCommand("LOCK"); }
-        };
+        function ruajKohet() {
+            let k = document.getElementById('cfg-t-kandele').value;
+            let x = document.getElementById('cfg-t-xhamat').value;
+            if(k) uiCommand("CFG:T_KANDELE:" + k);
+            if(x) uiCommand("CFG:T_XHAMAT:" + x);
+            alert("Konfigurimet u dërguan!");
+        }
 
-        window.onload = () => { 
-            if (sessionStorage.getItem("isAuth")) showApp(); 
-        };
+        function addGuestPin() {
+            let name = document.getElementById('new-guest-name').value;
+            let pin = document.getElementById('new-guest-pin').value;
+            if(name && pin && pin.length === 4) {
+                db.ref('guestUsers/' + pin).set(name).then(() => {
+                    alert("Përdoruesi u shtua!");
+                    document.getElementById('new-guest-name').value = "";
+                    document.getElementById('new-guest-pin').value = "";
+                    loadGuests();
+                });
+            } else { alert("Plotësoni emrin dhe një PIN prej 4 shifrash!"); }
+        }
+
+        function loadGuests() {
+            db.ref('guestUsers').on('value', (snapshot) => {
+                let list = document.getElementById('guest-list');
+                list.innerHTML = "";
+                snapshot.forEach((child) => {
+                    let pin = child.key;
+                    let name = child.val();
+                    list.innerHTML += `<div class="guest-item"><span><b>${name}</b> (PIN: ${pin})</span><button class="btn-delete" onclick="deleteGuest('${pin}')">FSHI</button></div>`;
+                });
+            });
+        }
+
+        window.deleteGuest = (pin) => { db.ref('guestUsers/' + pin).remove(); };
+
+        window.onload = () => { if (sessionStorage.getItem("isAuth")) showApp(); };
     </script>
 </body>
 </html>
