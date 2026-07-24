@@ -756,7 +756,7 @@
         let downPos = null;
         let flashTimer = null;
 
-        // Ruajtja e pozicioneve origjinale të mbyllura të dyerve
+        // Ruajtja e pozicioneve origjinale të mbyllura dhe rregullimi i saktë i hapjes
         window.setCarPartState = function(part, isOpenOrActive) {
             if (!carModel) return;
             carModel.traverse(obj => {
@@ -766,7 +766,7 @@
                 let isMatchDoor = (part === 'doors' && (n.includes('detach_door_l') || n.includes('detach_door_r') || n.includes('door')));
 
                 if (isMatchEngine || isMatchDoor) {
-                    // Ruajmë pozicionin/rotacionin origjinal herën e parë që ngarkohet modeli
+                    // Ruajmë pozicionin/rotacionin origjinal herën e parë (kur janë të mbyllura)
                     if (!obj.userData.origSaved) {
                         obj.userData.origSaved = true;
                         obj.userData.origPos = obj.position.clone();
@@ -782,7 +782,7 @@
                         obj.userData.isCloned = true;
                     }
 
-                    // Menaxhimi i ngjyrës (e kuqe kur hapet)
+                    // Menaxhimi i ngjyrës (e kuqe kur hapen)
                     const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
                     mats.forEach(m => {
                         if (m._trueOrigEmissive === undefined) {
@@ -806,19 +806,15 @@
                     if (isMatchDoor) {
                         const isLeft = n.includes('_l_') || n.includes('l');
                         
+                        // Kthejmë fillimisht në pozicionin origjinal të mbyllur
+                        obj.position.copy(obj.userData.origPos);
+                        obj.rotation.copy(obj.userData.origRot);
+
                         if (isOpenOrActive) {
-                            // Kur hapen: i japim një zhvendosje dhe rrotullim të lehtë nga jashtë
-                            // duke ruajtur bazën origjinale të mbyllur
-                            obj.position.copy(obj.userData.origPos);
-                            obj.rotation.copy(obj.userData.origRot);
-                            
-                            // Aplikojmë rrotullimin e hapjes sipas krahut
-                            const angle = isLeft ? -0.45 : 0.45;
+                            // Dera e majtë dhe e djathtë kanë boshte të pasqyruara në GLB.
+                            // Përdorim shenjën e saktë që korniza e xhamit të mos ikë mbrapsht.
+                            const angle = isLeft ? -0.42 : -0.42; 
                             obj.rotation.y += angle;
-                        } else {
-                            // Kur mbyllen: kthehen 100% në pozicionin origjinal të ruajtur
-                            obj.position.copy(obj.userData.origPos);
-                            obj.rotation.copy(obj.userData.origRot);
                         }
                     }
                 }
