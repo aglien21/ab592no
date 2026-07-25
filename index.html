@@ -1001,7 +1001,7 @@
 
             let part = null;
 
-            // 1. KONTROLLI I PARË: TAVANI (Përfshin "upper", "roof", "sunroof", "tavan")
+            // 1. TAVANI (Kape saktësisht nga emri i tij: upper roof-glass)
             if (matchedName.includes('upper') || matchedName.includes('roof') || matchedName.includes('sunroof') || matchedName.includes('panoram') || matchedName.includes('tavan')) {
                 part = 'sunroof';
             }
@@ -1013,12 +1013,12 @@
             else if (matchedName.includes('hood') || matchedName.includes('bonnet') || matchedName.includes('kapot')) {
                 part = 'engine';
             } 
-            // 4. XHAMAT ANËSORË (Çdo gjë tjetër me glass/window që nuk është tavani lart)
-            else if (matchedName.includes('glass') || matchedName.includes('window') || matchedName.includes('dritare') || matchedName.includes('glass_lights')) {
+            // 4. XHAMAT ANËSORË (Vetëm xhamat që i përkasin dyerve / anësoreve, duke shmangur tavanin)
+            else if ((matchedName.includes('glass') || matchedName.includes('window') || matchedName.includes('dritare')) && !matchedName.includes('upper') && !matchedName.includes('roof')) {
                 showFeedback("ℹ️ Përdor butonin në ekran për xhamat");
                 return; 
             }
-            // 5. ÇDO GJË TJETËR
+            // 5. ÇDO GJË TJETËR (Llamarina ose pjesë pa funksion) -> MOS BËJ ASGJË DHE SHFAQ MESAZH
             else {
                 showFeedback("🤔 Pjesë e panjohur");
                 return;
