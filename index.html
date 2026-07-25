@@ -827,12 +827,12 @@
                                 angle = -0.42;      
                                 hingeX = 0.05;      
                                 hingeZ = 1.1;       
-                                rrshqitjeMbrapa = -0.15; 
+                                rrshqitjeMbrapa = -0.20; 
                             } else {
                                 angle = 0.42;       
                                 hingeX = -0.05;     
                                 hingeZ = 1.1;       
-                                rrshqitjeMbrapa = -0.15; 
+                                rrshqitjeMbrapa = -0.20; 
                             }
 
                             obj.rotation.y += angle;
@@ -993,14 +993,37 @@
             
             while (obj && obj !== scene) {
                 const n = (obj.name || '').toLowerCase();
-                if (n.includes('door') || n.includes('dyr') || n.includes('porta') || n.includes('detach_door')) { part = 'door'; break; }
-                if (n.includes('hood') || n.includes('bonnet') || n.includes('kapot')) { part = 'engine'; break; }
-                if (n.includes('glass')) {
-                    part = n.includes('lights') ? 'windows' : 'sunroof';
-                    break;
+                
+                // Kapim dyert
+                if (n.includes('door') || n.includes('dyr') || n.includes('porta') || n.includes('detach_door')) { 
+                    part = 'door'; 
+                    break; 
                 }
-                if (n.includes('sunroof') || n.includes('panoram') || n.includes('sun_roof') || n.includes('tavan')) { part = 'sunroof'; break; }
+                // Kapim kapotin e motorrit
+                if (n.includes('hood') || n.includes('bonnet') || n.includes('kapot')) { 
+                    part = 'engine'; 
+                    break; 
+                }
+                // Kapim xhamat (Glass_Lights)
+                if (n.includes('glass_lights') || n.includes('glass') || n.includes('window')) { 
+                    part = 'windows'; 
+                    break; 
+                }
+                // Kapim tavanin (Sunroof)
+                if (n.includes('sunroof') || n.includes('panoram') || n.includes('sun_roof') || n.includes('tavan') || n.includes('roof')) { 
+                    part = 'sunroof'; 
+                    break; 
+                }
                 obj = obj.parent;
+            }
+
+            // Nëse emri nuk u kap direkt nga fjalët kyçe, dallojmë sipas lartësisë së pikës ku u prek
+            if (!part && hit) {
+                if (hit.point.y > 1.25) {
+                    part = 'sunroof';
+                } else {
+                    part = 'windows';
+                }
             }
 
             if (!part) { showFeedback("🤔 Pjesë e panjohur"); return; }
@@ -1032,13 +1055,13 @@
             } else if (part === 'windows') {
                 if (role === 'guest') { showFeedback('⛔ Nuk keni akses për xhamat'); return; }
                 
-                flashMesh(mesh, 4500); // 4.5 sekonda xhamat e zbardhur
+                flashMesh(mesh, 4500); // 4.5 sekonda zbardhje për Glass_Lights (xhamat)
                 sendCommand('WINDOWS'); showFeedback('🪟 Duke lëvizur xhamat...');
                 
             } else if (part === 'sunroof') {
                 if (role === 'guest') { showFeedback('⛔ Nuk keni akses për tavanin'); return; }
                 
-                flashMesh(mesh, 8000); // 8 sekonda tavani i zbardhur
+                flashMesh(mesh, 8000); // 8 sekonda zbardhje për tavanin
                 sendCommand('SUNROOF'); showFeedback('🪟 Duke lëvizur tavanin...');
             }
         }
