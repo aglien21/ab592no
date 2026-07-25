@@ -819,7 +819,9 @@
 
                     // HAPJA DHE MBYLLJA FIZIKE E DYERVE ME TRIGONOMETRI TË SAKTË
                     if (isMatchDoor) {
-                        const isLeft = n.includes('_l_') || n.includes('l');
+                        // KORRIGJIMI: Përcaktojmë saktë krahun pa u ngatërruar nga fjalë si "glass" apo "panel"
+                        const isRight = n.includes('_r') || n.includes('right') || n.includes('_fr') || n.endsWith('_r');
+                        const isLeft = !isRight; // Nëse s'është e djathtë, është e majtë
                         
                         // Kthejmë fillimisht në pozicionin origjinal të mbyllur
                         obj.position.copy(obj.userData.origPos);
