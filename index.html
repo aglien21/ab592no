@@ -989,9 +989,8 @@
 
             const hit = hits[0];
             let obj = hit.object;
-            let part = null;
             
-            // Kontrollojmë emrat duke u ngjitur lart te prindërit nëse është e nevojshme
+            // Mblidh të gjithë emrat lart te prindërit për siguri
             let checkObj = obj;
             let matchedName = "";
             while (checkObj && checkObj !== scene) {
@@ -1000,22 +999,30 @@
                 checkObj = checkObj.parent;
             }
 
-            // Përcaktimi i saktë i pjesës bazuar te emërtimet e tua
+            // 1. NËSE PREKET XHAMI (Glass_Lights) -> E IGNOROJMË DHE SHFAQIM MESAZH
+            if (matchedName.includes('glass_lights') || (matchedName.includes('glass') && !matchedName.includes('sunroof'))) {
+                showFeedback("ℹ️ Përdor butonin në ekran për xhamat");
+                return; 
+            }
+
+            let part = null;
+
+            // 2. KONTROLLOJMË DYERT
             if (matchedName.includes('door') || matchedName.includes('dyr') || matchedName.includes('porta') || matchedName.includes('detach_door')) {
                 part = 'door';
-            } else if (matchedName.includes('hood') || matchedName.includes('bonnet') || matchedName.includes('kapot')) {
+            } 
+            // 3. KONTROLLOJMË KAPOTIN E MOTORRIT
+            else if (matchedName.includes('hood') || matchedName.includes('bonnet') || matchedName.includes('kapot')) {
                 part = 'engine';
-            } else if (matchedName.includes('glass_lights')) {
-                part = 'windows'; // Xhamat anësorë
-            } else if (matchedName.includes('sunroof') || matchedName.includes('roof') || matchedName.includes('panoram') || matchedName.includes('tavan')) {
-                part = 'sunroof'; // Tavani
-            } else {
-                // Fallback bazuar te lartësia e pikës së prekur nëse emri nuk u kap
-                if (hit.point.y > 1.25) {
-                    part = 'sunroof';
-                } else {
-                    part = 'windows';
-                }
+            } 
+            // 4. KONTROLLOJMË TAVANIN
+            else if (matchedName.includes('sunroof') || matchedName.includes('panoram') || matchedName.includes('sun_roof') || matchedName.includes('tavan') || matchedName.includes('roof')) {
+                part = 'sunroof';
+            } 
+            // 5. ÇDO GJË TJETËR (Llamarina / Pjesë të tjera pa funksion) -> MOS BËJ ASGJË DHE SHFAQ MESAZH
+            else {
+                showFeedback("🤔 Pjesë e panjohur");
+                return;
             }
 
             triggerPart(part, hit.object);
@@ -1043,16 +1050,10 @@
                     sendCommand('TRIP_MODE');
                     showFeedback('🚀 Trip Mode u aktivizua!');
                 }
-            } else if (part === 'windows') {
-                if (role === 'guest') { showFeedback('⛔ Nuk keni akses për xhamat'); return; }
-                
-                flashMesh(mesh, 4500); // 4.5 sekonda zbardhje për xhamat
-                sendCommand('WINDOWS'); showFeedback('🪟 Duke lëvizur xhamat...');
-                
             } else if (part === 'sunroof') {
                 if (role === 'guest') { showFeedback('⛔ Nuk keni akses për tavanin'); return; }
                 
-                flashMesh(mesh, 8000); // 8 sekonda zbardhje për tavanin
+                flashMesh(mesh, 8000); // 8 sekonda zbardhje vetëm për tavanin
                 sendCommand('SUNROOF'); showFeedback('🪟 Duke lëvizur tavanin...');
             }
         }
