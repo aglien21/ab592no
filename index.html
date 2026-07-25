@@ -769,7 +769,6 @@
         const loadingEl = document.getElementById('car-3d-loading');
 
         let downPos = null;
-        let flashTimer = null;
 
         window.setCarPartState = function(part, isOpenOrActive) {
             if (!carModel) return;
@@ -815,7 +814,6 @@
                     });
 
                     if (isMatchDoor) {
-                        // KORRIGJIMI PËR KORNIZËN "GLASS" TË PASAGJERIT
                         const isRight = n.includes('_r') || n.includes('right') || n.includes('_fr') || n.endsWith('_r');
                         const isLeft = !isRight;
                         
@@ -826,17 +824,15 @@
                             let angle, hingeX, hingeZ, rrshqitjeMbrapa;
 
                             if (isLeft) {
-                                // === DERA E SHOFERIT ===
                                 angle = -0.42;      
                                 hingeX = 0.05;      
                                 hingeZ = 1.1;       
-                                rrshqitjeMbrapa = -0.25; // Lëvizja zëvëndësuese mbrapa
+                                rrshqitjeMbrapa = 0.15; 
                             } else {
-                                // === DERA E PASAGJERIT ===
                                 angle = 0.42;       
                                 hingeX = -0.05;     
                                 hingeZ = 1.1;       
-                                rrshqitjeMbrapa = -0.25; // Lëvizja zëvëndësuese mbrapa
+                                rrshqitjeMbrapa = 0.15; 
                             }
 
                             obj.rotation.y += angle;
@@ -847,7 +843,6 @@
                             const deltaX = hingeX - (hingeX * cosA + hingeZ * sinA);
                             const deltaZ = hingeZ - (-hingeX * sinA + hingeZ * cosA);
 
-                            // Llogaritja trigonometrike + shtimi i rrëshqitjes mbrapa manualisht
                             obj.position.x += deltaX;
                             obj.position.z += (deltaZ + rrshqitjeMbrapa); 
                         }
@@ -863,7 +858,7 @@
             showFeedback._t = setTimeout(() => feedbackEl.classList.remove('show'), 1800);
         }
 
-        function flashMesh(mesh) {
+        function flashMesh(mesh, duration = 400) {
             if (!mesh || !mesh.material) return;
             try {
                 if (!mesh.userData.isCloned) {
@@ -877,16 +872,27 @@
 
                 const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
                 mats.forEach(m => {
-                    if (m.emissive) { m._tempEmissive = m.emissive.clone(); m.emissive.set(0x00d2ff); }
-                    if (m.emissiveIntensity !== undefined) { m._tempEI = m.emissiveIntensity; m.emissiveIntensity = 0.7; }
+                    if (m._tempEmissive === undefined) {
+                        m._tempEmissive = m.emissive ? m.emissive.clone() : new THREE.Color(0x000000);
+                    }
+                    if (m._tempEI === undefined) {
+                        m._tempEI = m.emissiveIntensity !== undefined ? m.emissiveIntensity : 1;
+                    }
+                    
+                    m.emissive.setHex(0x00d2ff); 
+                    m.emissiveIntensity = 0.8;
                 });
-                clearTimeout(flashTimer);
-                flashTimer = setTimeout(() => {
+
+                if (mesh.userData.flashTimer) {
+                    clearTimeout(mesh.userData.flashTimer);
+                }
+                
+                mesh.userData.flashTimer = setTimeout(() => {
                     mats.forEach(m => {
                         if (m._tempEmissive) m.emissive.copy(m._tempEmissive);
                         if (m._tempEI !== undefined) m.emissiveIntensity = m._tempEI;
                     });
-                }, 350);
+                }, duration);
             } catch (e) { }
         }
 
@@ -938,7 +944,7 @@
                 const center = box.getCenter(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z) || 1;
                 
-                const scale = 7.9 / maxDim; // Shkalla e saktë
+                const scale = 7.9 / maxDim; 
                 carModel.scale.setScalar(scale);
                 carModel.position.x = -center.x * scale;
                 carModel.position.z = -center.z * scale;
@@ -1002,10 +1008,10 @@
         }
 
         function triggerPart(part, mesh) {
-            flashMesh(mesh);
             const role = (typeof userRole !== 'undefined') ? userRole : 'guest';
 
             if (part === 'door') {
+                flashMesh(mesh, 400);
                 const locksText = document.getElementById('val-locks').innerText;
                 if (locksText.indexOf('Mbyllur') === 0 || locksText === '--') {
                     sendCommand('UNLOCK'); showFeedback('🔓 Duke shkyçur dyert...');
@@ -1013,6 +1019,7 @@
                     sendCommand('LOCK'); showFeedback('🔒 Duke mbyllur dyert...');
                 }
             } else if (part === 'engine') {
+                flashMesh(mesh, 400);
                 const engText = document.getElementById('val-engine').innerText;
                 if (engText === 'Ndezur' || (typeof isEngineRunning !== 'undefined' && isEngineRunning)) {
                     sendCommand('STOP');
@@ -1024,9 +1031,14 @@
                 }
             } else if (part === 'windows') {
                 if (role === 'guest') { showFeedback('⛔ Nuk keni akses për xhamat'); return; }
+                
+                flashMesh(mesh, 4500); // 4.5 sekonda xhamat
                 sendCommand('WINDOWS'); showFeedback('🪟 Duke lëvizur xhamat...');
+                
             } else if (part === 'sunroof') {
                 if (role === 'guest') { showFeedback('⛔ Nuk keni akses për tavanin'); return; }
+                
+                flashMesh(mesh, 8000); // 8 sekonda tavani
                 sendCommand('SUNROOF'); showFeedback('🪟 Duke lëvizur tavanin...');
             }
         }
