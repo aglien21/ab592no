@@ -991,34 +991,26 @@
             let obj = hit.object;
             let part = null;
             
-            while (obj && obj !== scene) {
-                const n = (obj.name || '').toLowerCase();
-                
-                // Kapim dyert
-                if (n.includes('door') || n.includes('dyr') || n.includes('porta') || n.includes('detach_door')) { 
-                    part = 'door'; 
-                    break; 
-                }
-                // Kapim kapotin e motorrit
-                if (n.includes('hood') || n.includes('bonnet') || n.includes('kapot')) { 
-                    part = 'engine'; 
-                    break; 
-                }
-                // Kapim xhamat (Glass_Lights)
-                if (n.includes('glass_lights') || n.includes('glass') || n.includes('window')) { 
-                    part = 'windows'; 
-                    break; 
-                }
-                // Kapim tavanin (Sunroof)
-                if (n.includes('sunroof') || n.includes('panoram') || n.includes('sun_roof') || n.includes('tavan') || n.includes('roof')) { 
-                    part = 'sunroof'; 
-                    break; 
-                }
-                obj = obj.parent;
+            // Kontrollojmë emrat duke u ngjitur lart te prindërit nëse është e nevojshme
+            let checkObj = obj;
+            let matchedName = "";
+            while (checkObj && checkObj !== scene) {
+                const n = (checkObj.name || '').toLowerCase();
+                if (n) matchedName += " " + n;
+                checkObj = checkObj.parent;
             }
 
-            // Nëse emri nuk u kap direkt nga fjalët kyçe, dallojmë sipas lartësisë së pikës ku u prek
-            if (!part && hit) {
+            // Përcaktimi i saktë i pjesës bazuar te emërtimet e tua
+            if (matchedName.includes('door') || matchedName.includes('dyr') || matchedName.includes('porta') || matchedName.includes('detach_door')) {
+                part = 'door';
+            } else if (matchedName.includes('hood') || matchedName.includes('bonnet') || matchedName.includes('kapot')) {
+                part = 'engine';
+            } else if (matchedName.includes('glass_lights')) {
+                part = 'windows'; // Xhamat anësorë
+            } else if (matchedName.includes('sunroof') || matchedName.includes('roof') || matchedName.includes('panoram') || matchedName.includes('tavan')) {
+                part = 'sunroof'; // Tavani
+            } else {
+                // Fallback bazuar te lartësia e pikës së prekur nëse emri nuk u kap
                 if (hit.point.y > 1.25) {
                     part = 'sunroof';
                 } else {
@@ -1026,7 +1018,6 @@
                 }
             }
 
-            if (!part) { showFeedback("🤔 Pjesë e panjohur"); return; }
             triggerPart(part, hit.object);
         }
 
@@ -1055,7 +1046,7 @@
             } else if (part === 'windows') {
                 if (role === 'guest') { showFeedback('⛔ Nuk keni akses për xhamat'); return; }
                 
-                flashMesh(mesh, 4500); // 4.5 sekonda zbardhje për Glass_Lights (xhamat)
+                flashMesh(mesh, 4500); // 4.5 sekonda zbardhje për xhamat
                 sendCommand('WINDOWS'); showFeedback('🪟 Duke lëvizur xhamat...');
                 
             } else if (part === 'sunroof') {
