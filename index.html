@@ -9,9 +9,9 @@
     <meta name="apple-mobile-web-app-title" content="i30 Control">
     <title>i30 DIGITAL REMOTE</title>
 
-    <link rel="apple-touch-icon" href="./car.jpg">
-    <link rel="icon" type="image/png" href="./car.jpg">
-    <link rel="shortcut icon" href="./car.jpg">
+    <link rel="apple-touch-icon" href="./logo.png">
+    <link rel="icon" type="image/png" href="./logo.png">
+    <link rel="shortcut icon" href="./logo.png">
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -630,16 +630,32 @@
             if (document.getElementById('val-key').innerText === "AKTIV") sendCommand('KEY_OFF'); else sendCommand('KEY_ON');
         }
 
+        // PËRDITËSUAR: Funksioni i MQTT me kohë pritje më të gjatë dhe trajtim më të mirë vonesash
         function initMQTT() {
             if (isMqttConnected) return; 
+            
+            document.getElementById('val-online').innerText = "Duke u lidhur...";
+            document.getElementById('val-online').style.color = "orange";
+
             mqttClient.connect({
-                useSSL: true, reconnect: true, timeout: 3, keepAliveInterval: 30,
+                useSSL: true, 
+                reconnect: true, 
+                timeout: 10, // Rritur koha për serverin publik
+                keepAliveInterval: 30,
                 onSuccess: () => {
-                    isMqttConnected = true; mqttClient.subscribe(topicStatus);
-                    document.getElementById('val-online').innerText = "ONLINE"; document.getElementById('val-online').style.color = "var(--success)";
+                    isMqttConnected = true; 
+                    mqttClient.subscribe(topicStatus);
+                    document.getElementById('val-online').innerText = "ONLINE"; 
+                    document.getElementById('val-online').style.color = "var(--success)";
                     pingCar(false);
                 },
-                onFailure: (err) => { isMqttConnected = false; setTimeout(initMQTT, 3000); }
+                onFailure: (err) => { 
+                    console.error("Lidhja MQTT dështoi:", err);
+                    isMqttConnected = false; 
+                    document.getElementById('val-online').innerText = "Po riprovoj lidhjen..."; 
+                    document.getElementById('val-online').style.color = "orange";
+                    setTimeout(initMQTT, 5000); 
+                }
             });
         }
 
@@ -756,7 +772,7 @@
         let downPos = null;
         let flashTimer = null;
 
-        // Ruajtja e pozicioneve origjinale të mbyllura dhe rregullimi i saktë i hapjes
+        // PËRDITËSUAR: Ruajtja e pozicioneve origjinale dhe rregullimi i menteshave me Matematikë
         window.setCarPartState = function(part, isOpenOrActive) {
             if (!carModel) return;
             carModel.traverse(obj => {
@@ -766,7 +782,6 @@
                 let isMatchDoor = (part === 'doors' && (n.includes('detach_door_l') || n.includes('detach_door_r') || n.includes('door')));
 
                 if (isMatchEngine || isMatchDoor) {
-                    // Ruajmë pozicionin/rotacionin origjinal herën e parë (kur janë të mbyllura 100%)
                     if (!obj.userData.origSaved) {
                         obj.userData.origSaved = true;
                         obj.userData.origPos = obj.position.clone();
@@ -782,7 +797,7 @@
                         obj.userData.isCloned = true;
                     }
 
-                    // Menaxhimi i ngjyrës (e kuqe kur hapen)
+                    // Menaxhimi i ngjyrës
                     const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
                     mats.forEach(m => {
                         if (m._trueOrigEmissive === undefined) {
@@ -802,7 +817,7 @@
                         }
                     });
 
-                    // HAPJA DHE MBYLLJA FIZIKE E DYERVE ME KËNDE TË KORRIGJUARA PËR SECILën ANË
+                    // HAPJA DHE MBYLLJA FIZIKE E DYERVE ME TRIGONOMETRI TË SAKTË
                     if (isMatchDoor) {
                         const isLeft = n.includes('_l_') || n.includes('l');
                         
@@ -811,11 +826,33 @@
                         obj.rotation.copy(obj.userData.origRot);
 
                         if (isOpenOrActive) {
-                            // Dera e majtë (shoferi) dhe e djathta (pasagjeri) hapen saktë
-                            // duke korrigjuar shenjën e rrotullimit për shkak të pasqyrimit në GLB
-                            const angle = isLeft ? 0. : 0.; 
-                           obj.rotation.x += angle;
+                            let angle, hingeX, hingeZ;
 
+                            if (isLeft) {
+                                // === DERA E SHOFERIT (MAJTAS) ===
+                                angle = -0.42;      // Këndi i hapjes
+                                hingeX = 0.05;      // Lëvizja boshti X nga jashtë
+                                hingeZ = 1.1;       // Distanca nga doreza te mentesha
+                            } else {
+                                // === DERA E PASAGJERIT (DJATHTAS) ===
+                                angle = 0.42;       // Këndi i hapjes (shenjë e kundërt)
+                                hingeX = -0.05;     // Lëvizja boshti X nga jashtë (shenjë e kundërt)
+                                hingeZ = 1.1;       // Distanca nga doreza te mentesha
+                            }
+
+                            // Rrotullimi
+                            obj.rotation.y += angle;
+
+                            // Llogaritja Trigonometrike e Pikës së Re (që mentesha të ngrijë fiks në vend)
+                            const cosA = Math.cos(angle);
+                            const sinA = Math.sin(angle);
+                            
+                            const deltaX = hingeX - (hingeX * cosA + hingeZ * sinA);
+                            const deltaZ = hingeZ - (-hingeX * sinA + hingeZ * cosA);
+
+                            // Aplikojmë lëvizjen (offset)
+                            obj.position.x += deltaX;
+                            obj.position.z += deltaZ;
                         }
                     }
                 }
@@ -904,7 +941,7 @@
                 const center = box.getCenter(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z) || 1;
                 
-                const scale = 7.9 / maxDim; // Vendosur ne 7.9 sic kërkove
+                const scale = 7.9 / maxDim; // Shkalla e ruajtur sic kërkove
                 carModel.scale.setScalar(scale);
                 carModel.position.x = -center.x * scale;
                 carModel.position.z = -center.z * scale;
