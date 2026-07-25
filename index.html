@@ -9,9 +9,9 @@
     <meta name="apple-mobile-web-app-title" content="i30 Control">
     <title>i30 DIGITAL REMOTE</title>
 
-    <link rel="apple-touch-icon" href="./car.jpg">
-    <link rel="icon" type="image/png" href="./car.jpg">
-    <link rel="shortcut icon" href="./car.jpg">
+    <link rel="apple-touch-icon" href="./logo.png">
+    <link rel="icon" type="image/png" href="./logo.png">
+    <link rel="shortcut icon" href="./logo.png">
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -999,26 +999,27 @@
                 checkObj = checkObj.parent;
             }
 
-            let part = null;
-
-            // RADHITJA E RE KËTU: E PARA KONTROLLOHET TAVANI
-            if (matchedName.includes('sunroof') || matchedName.includes('roof') || matchedName.includes('panoram') || matchedName.includes('tavan')) {
-                part = 'sunroof';
-            }
-            // MË PAS KONTROLLOHEN DYERT
-            else if (matchedName.includes('door') || matchedName.includes('dyr') || matchedName.includes('porta') || matchedName.includes('detach_door')) {
-                part = 'door';
-            } 
-            // MË PAS MOTORRI
-            else if (matchedName.includes('hood') || matchedName.includes('bonnet') || matchedName.includes('kapot')) {
-                part = 'engine';
-            } 
-            // NËSE NUK ISHTE TAVAN, POR ËSHTË XHAM -> INJOROJE
-            else if (matchedName.includes('glass') || matchedName.includes('window') || matchedName.includes('dritare')) {
+            // 1. NËSE PREKET XHAMI (Glass_Lights) -> E IGNOROJMË DHE SHFAQIM MESAZH
+            if (matchedName.includes('glass_lights') || (matchedName.includes('glass') && !matchedName.includes('sunroof'))) {
                 showFeedback("ℹ️ Përdor butonin në ekran për xhamat");
                 return; 
             }
-            // ÇDO GJË TJETËR
+
+            let part = null;
+
+            // 2. KONTROLLOJMË DYERT
+            if (matchedName.includes('door') || matchedName.includes('dyr') || matchedName.includes('porta') || matchedName.includes('detach_door')) {
+                part = 'door';
+            } 
+            // 3. KONTROLLOJMË KAPOTIN E MOTORRIT
+            else if (matchedName.includes('hood') || matchedName.includes('bonnet') || matchedName.includes('kapot')) {
+                part = 'engine';
+            } 
+            // 4. KONTROLLOJMË TAVANIN
+            else if (matchedName.includes('sunroof') || matchedName.includes('panoram') || matchedName.includes('sun_roof') || matchedName.includes('tavan') || matchedName.includes('roof')) {
+                part = 'sunroof';
+            } 
+            // 5. ÇDO GJË TJETËR (Llamarina / Pjesë të tjera pa funksion) -> MOS BËJ ASGJË DHE SHFAQ MESAZH
             else {
                 showFeedback("🤔 Pjesë e panjohur");
                 return;
