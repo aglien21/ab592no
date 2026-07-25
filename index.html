@@ -804,37 +804,17 @@
 
                     // HAPJA DHE MBYLLJA FIZIKE E DYERVE ME KËNDE TË KORRIGJUARA PËR SECILën ANË
                     if (isMatchDoor) {
-                const isLeft = n.includes('_l_') || n.includes('l');
+                        const isLeft = n.includes('_l_') || n.includes('l');
+                        
+                        // Kthejmë fillimisht në pozicionin origjinal të mbyllur
+                        obj.position.copy(obj.userData.origPos);
+                        obj.rotation.copy(obj.userData.origRot);
 
-                if (!obj.userData.pivotGroup && obj.parent) {
-                    // Llogarisim kutinë kufizuese (bounding box) të derës për të kapur skajin e përparmë
-                    obj.geometry.computeBoundingBox();
-                    const box = obj.geometry.boundingBox;
-                    
-                    // Krijojmë një grup të ri (menteshat virtuale)
-                    const pivotGroup = new THREE.Group();
-                    obj.parent.add(pivotGroup);
-                    pivotGroup.position.copy(obj.position);
-                    
-                    // Lëvizim pikën e rrotullimit te skaji i përparmë i derës (te mentesha e vërtetë)
-                    const localHingeX = isLeft ? box.min.x : box.max.x;
-                    const localHingeZ = box.min.z; 
-                    
-                    pivotGroup.position.x += localHingeX;
-                    pivotGroup.position.z += localHingeZ;
-
-                    // Kalojmë mesh-in te grupi i ri duke ruajtur pozicionin vizual
-                    obj.position.sub(pivotGroup.position);
-                    obj.parent.remove(obj);
-                    pivotGroup.add(obj);
-
-                    obj.userData.pivotGroup = pivotGroup;
-                }
-
-                if (obj.userData.pivotGroup) {
-                    // Rrotullojmë grupin e menteshës me kënd realist
-                    const targetAngle = isOpenOrActive ? (isLeft ? -0.45 : 0.45) : 0;
-                    obj.userData.pivotGroup.rotation.y = targetAngle;
+                        if (isOpenOrActive) {
+                            // Dera e majtë (shoferi) dhe e djathta (pasagjeri) hapen saktë
+                            // duke korrigjuar shenjën e rrotullimit për shkak të pasqyrimit në GLB
+                            const angle = isLeft ? 0. : 0.; 
+                           obj.rotation.x += angle;
 
                         }
                     }
