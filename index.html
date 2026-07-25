@@ -622,7 +622,7 @@
             if(vonesa > 0) {
                 alert("Kohët e reja po dërgohen! Makina do t'i ruajë automatikisht në memorie.");
                 document.getElementById('cfg-t-kandele').value = ""; document.getElementById('cfg-t-xhamat').value = "";
-            } else { alert("Nuk ke plotësuar asnjë vlerë për të dërguar."); }
+            } else { alert("Nuk ke plotësuar asnjë vlerë për t'u dërguar."); }
         }
 
         function toggleKey() {
@@ -827,12 +827,12 @@
                                 angle = -0.42;      
                                 hingeX = 0.05;      
                                 hingeZ = 1.1;       
-                                rrshqitjeMbrapa = 0.15; 
+                                rrshqitjeMbrapa = -0.15; 
                             } else {
                                 angle = 0.42;       
                                 hingeX = -0.05;     
                                 hingeZ = 1.1;       
-                                rrshqitjeMbrapa = 0.15; 
+                                rrshqitjeMbrapa = -0.15; 
                             }
 
                             obj.rotation.y += angle;
@@ -1032,13 +1032,13 @@
             } else if (part === 'windows') {
                 if (role === 'guest') { showFeedback('⛔ Nuk keni akses për xhamat'); return; }
                 
-                flashMesh(mesh, 4500); // 4.5 sekonda xhamat
+                flashMesh(mesh, 4500); // 4.5 sekonda xhamat e zbardhur
                 sendCommand('WINDOWS'); showFeedback('🪟 Duke lëvizur xhamat...');
                 
             } else if (part === 'sunroof') {
                 if (role === 'guest') { showFeedback('⛔ Nuk keni akses për tavanin'); return; }
                 
-                flashMesh(mesh, 8000); // 8 sekonda tavani
+                flashMesh(mesh, 8000); // 8 sekonda tavani i zbardhur
                 sendCommand('SUNROOF'); showFeedback('🪟 Duke lëvizur tavanin...');
             }
         }
