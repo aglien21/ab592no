@@ -630,7 +630,6 @@
             if (document.getElementById('val-key').innerText === "AKTIV") sendCommand('KEY_OFF'); else sendCommand('KEY_ON');
         }
 
-        // PËRDITËSUAR: Funksioni i MQTT me kohë pritje më të gjatë dhe trajtim më të mirë vonesash
         function initMQTT() {
             if (isMqttConnected) return; 
             
@@ -640,7 +639,7 @@
             mqttClient.connect({
                 useSSL: true, 
                 reconnect: true, 
-                timeout: 10, // Rritur koha për serverin publik
+                timeout: 10, 
                 keepAliveInterval: 30,
                 onSuccess: () => {
                     isMqttConnected = true; 
@@ -772,7 +771,6 @@
         let downPos = null;
         let flashTimer = null;
 
-        // PËRDITËSUAR: Ruajtja e pozicioneve origjinale dhe rregullimi i menteshave me Matematikë
         window.setCarPartState = function(part, isOpenOrActive) {
             if (!carModel) return;
             carModel.traverse(obj => {
@@ -797,7 +795,6 @@
                         obj.userData.isCloned = true;
                     }
 
-                    // Menaxhimi i ngjyrës
                     const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
                     mats.forEach(m => {
                         if (m._trueOrigEmissive === undefined) {
@@ -817,44 +814,42 @@
                         }
                     });
 
-                    // HAPJA DHE MBYLLJA FIZIKE E DYERVE ME TRIGONOMETRI TË SAKTË
                     if (isMatchDoor) {
-                        // KORRIGJIMI: Përcaktojmë saktë krahun pa u ngatërruar nga fjalë si "glass" apo "panel"
+                        // KORRIGJIMI PËR KORNIZËN "GLASS" TË PASAGJERIT
                         const isRight = n.includes('_r') || n.includes('right') || n.includes('_fr') || n.endsWith('_r');
-                        const isLeft = !isRight; // Nëse s'është e djathtë, është e majtë
+                        const isLeft = !isRight;
                         
-                        // Kthejmë fillimisht në pozicionin origjinal të mbyllur
                         obj.position.copy(obj.userData.origPos);
                         obj.rotation.copy(obj.userData.origRot);
 
                         if (isOpenOrActive) {
-                            let angle, hingeX, hingeZ;
+                            let angle, hingeX, hingeZ, rrshqitjeMbrapa;
 
                             if (isLeft) {
-                                // === DERA E SHOFERIT (MAJTAS) ===
-                                angle = -0.42;      // Këndi i hapjes
-                                hingeX = 0.05;      // Lëvizja boshti X nga jashtë
-                                hingeZ = 1.1;       // Distanca nga doreza te mentesha
+                                // === DERA E SHOFERIT ===
+                                angle = -0.42;      
+                                hingeX = 0.05;      
+                                hingeZ = 1.1;       
+                                rrshqitjeMbrapa = 0.15; // Lëvizja zëvëndësuese mbrapa
                             } else {
-                                // === DERA E PASAGJERIT (DJATHTAS) ===
-                                angle = 0.42;       // Këndi i hapjes (shenjë e kundërt)
-                                hingeX = -0.05;     // Lëvizja boshti X nga jashtë (shenjë e kundërt)
-                                hingeZ = 1.1;       // Distanca nga doreza te mentesha
+                                // === DERA E PASAGJERIT ===
+                                angle = 0.42;       
+                                hingeX = -0.05;     
+                                hingeZ = 1.1;       
+                                rrshqitjeMbrapa = 0.15; // Lëvizja zëvëndësuese mbrapa
                             }
 
-                            // Rrotullimi
                             obj.rotation.y += angle;
 
-                            // Llogaritja Trigonometrike e Pikës së Re (që mentesha të ngrijë fiks në vend)
                             const cosA = Math.cos(angle);
                             const sinA = Math.sin(angle);
                             
                             const deltaX = hingeX - (hingeX * cosA + hingeZ * sinA);
                             const deltaZ = hingeZ - (-hingeX * sinA + hingeZ * cosA);
 
-                            // Aplikojmë lëvizjen (offset)
+                            // Llogaritja trigonometrike + shtimi i rrëshqitjes mbrapa manualisht
                             obj.position.x += deltaX;
-                            obj.position.z += deltaZ;
+                            obj.position.z += (deltaZ + rrshqitjeMbrapa); 
                         }
                     }
                 }
@@ -943,7 +938,7 @@
                 const center = box.getCenter(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z) || 1;
                 
-                const scale = 7.9 / maxDim; // Shkalla e ruajtur sic kërkove
+                const scale = 7.9 / maxDim; // Shkalla e saktë
                 carModel.scale.setScalar(scale);
                 carModel.position.x = -center.x * scale;
                 carModel.position.z = -center.z * scale;
