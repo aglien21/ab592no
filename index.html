@@ -90,7 +90,7 @@
         #screen-dash { 
             max-width: 500px; width: 100%; height: 100%; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
             overflow-y: auto; 
-            padding: calc(env(safe-area-inset-top, 5px) + 6px) 12px calc(env(safe-area-inset-bottom, 10px) + 55px) 12px; 
+            padding: calc(env(safe-area-inset-top, 5px) + 6px) 12px calc(env(safe-area-inset-bottom, 10px) + 60px) 12px; 
             box-sizing: border-box;
         }
 
@@ -130,7 +130,7 @@
         .i30-status-row:last-child { border-bottom: 0; }
         .i30-status-row b { color: var(--text-main); font-size: 10px; text-align: right; white-space: nowrap; }
 
-        /* 3D VIEWER (400px) */
+        /* 3D VIEWER (Lartësia 400px) */
         .viewer-container { 
             position: relative; width: 100%; height: 400px; margin-bottom: 10px; border-radius: 12px; 
             background: var(--car-glow); border: 1px solid var(--box-border); overflow: hidden; box-shadow: var(--btn-shadow);
@@ -161,39 +161,76 @@
         .action-btn .icon { font-size: 22px; line-height: 1; }
         .action-btn .label { font-size: 8.5px; font-weight: 700; letter-spacing: 0.3px; }
 
-        /* ===== SERVISET & SETTINGS ===== */
+        /* ===== SERVISET & SETTINGS (PËRDITËSUAR MË STIL MODERN) ===== */
         #screen-serv {
             height: 100%; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-            overflow-y: auto; padding: calc(env(safe-area-inset-top, 10px) + 20px) 12px calc(env(safe-area-inset-bottom, 10px) + 50px) 12px; box-sizing: border-box; text-align: left;
+            overflow-y: auto; padding: calc(env(safe-area-inset-top, 10px) + 20px) 12px calc(env(safe-area-inset-bottom, 10px) + 60px) 12px; box-sizing: border-box; text-align: left;
         }
-        .input-group { text-align: left; margin-bottom: 10px; background: var(--box-bg); padding: 10px; border-radius: 10px; border: 1px solid var(--box-border); box-shadow: var(--btn-shadow);}
-        .input-group h3 { margin-top: 0; color: var(--text-main); font-size: 12px; border-bottom: 1px solid var(--box-border); padding-bottom: 5px; }
-        .input-group label { display: block; font-size: 10.5px; color: var(--text-sub); margin-bottom: 3px; margin-top: 6px; }
-        input[type="text"], input[type="number"], input[type="password"], select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--box-border); background: transparent; color: var(--text-main); font-size: 12px; margin-bottom: 6px; outline: none; box-sizing: border-box;}
+        .modern-card {
+            background: rgba(0, 0, 0, 0.25); border: 1px solid var(--box-border); border-radius: 12px;
+            padding: 12px; margin-bottom: 12px; box-shadow: var(--btn-shadow); backdrop-filter: blur(6px);
+        }
+        body.light-hud .modern-card { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(0,0,0,0.1); }
         
+        .card-header {
+            font-size: 11px; font-weight: 800; color: #4aa9ff; margin-bottom: 10px;
+            border-bottom: 1px solid var(--box-border); padding-bottom: 4px;
+            display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        
+        .telemetry-row {
+            display: flex; justify-content: space-between; align-items: center; padding: 6px 0;
+            border-bottom: 1px dashed rgba(255,255,255,0.08); font-size: 11px;
+        }
+        body.light-hud .telemetry-row { border-bottom: 1px dashed rgba(0,0,0,0.1); }
+        .telemetry-row:last-child { border-bottom: none; }
+        .telemetry-label { color: var(--text-sub); }
+        .telemetry-val { font-weight: 700; color: var(--text-main); }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        
+        .modern-input {
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--box-border);
+            background: rgba(0,0,0,0.3); color: var(--text-main); font-size: 12px; outline: none; box-sizing: border-box; transition: 0.3s;
+        }
+        body.light-hud .modern-input { background: #fff; border-color: rgba(0,0,0,0.15); color: var(--text-main); }
+        .modern-input:focus { border-color: var(--accent); }
+        
+        .modern-btn {
+            background: rgba(0, 168, 255, 0.1); border: 1px solid var(--accent); color: var(--accent);
+            padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 800; width: 100%;
+            text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; transition: 0.2s;
+        }
+        .modern-btn:active { transform: scale(0.97); background: rgba(0, 168, 255, 0.25); }
+        .modern-btn.btn-red { border-color: var(--danger); color: var(--danger); background: rgba(255, 59, 48, 0.1); }
+        .modern-btn.btn-green { border-color: var(--success); color: var(--success); background: rgba(52, 199, 89, 0.1); }
+        .modern-btn.btn-orange { border-color: #ff9f0a; color: #ff9f0a; background: rgba(255, 159, 10, 0.1); }
+
         .service-tick { display: flex; align-items: center; margin-bottom: 5px; font-size: 11px; color: var(--text-main); }
-        .service-tick input[type="checkbox"] { width: 15px; height: 15px; margin-right: 8px; accent-color: var(--text-main); cursor: pointer; }
-        .btn-primary { background: rgba(0,168,255,0.1); border: 1px solid var(--text-main); color: var(--text-main); padding: 9px; border-radius: 6px; cursor: pointer; font-weight: 700; width: 100%; text-transform: uppercase; font-size: 11px; margin-top: 4px;}
+        .service-tick input[type="checkbox"] { width: 16px; height: 16px; margin-right: 8px; accent-color: var(--accent); cursor: pointer; }
 
-        table { width: 100%; border-collapse: collapse; font-size: 10.5px; margin-top: 8px; }
-        th, td { padding: 5px; border-bottom: 1px solid var(--box-border); text-align: left; }
-        th { color: var(--text-main); }
-        
-        .guest-item { display: flex; justify-content: space-between; align-items: center; background: rgba(100,100,100,0.1); padding: 6px 8px; border-radius: 6px; margin-bottom: 5px; }
-        .guest-pin { font-size: 11px; font-weight: 700; }
-        .btn-delete { background: var(--danger); border: none; color: white; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 9px;}
+        .modern-card table { width: 100%; border-collapse: collapse; font-size: 10.5px; margin-top: 8px; }
+        .modern-card th { padding: 6px; border-bottom: 1px solid var(--box-border); text-align: left; color: var(--accent); text-transform: uppercase;}
+        .modern-card td { padding: 6px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-main); }
+        body.light-hud .modern-card td { border-bottom: 1px solid rgba(0,0,0,0.05); }
 
-        /* NAV BAR (Më e ulët / kompakte) */
+        .guest-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px; margin-bottom: 6px; border: 1px solid var(--box-border); }
+        body.light-hud .guest-item { background: rgba(0,0,0,0.03); }
+        .guest-pin { font-size: 11px; font-weight: 700; color: var(--text-main); line-height: 1.4;}
+        .btn-delete { background: rgba(255, 59, 48, 0.2); border: 1px solid var(--danger); color: var(--danger); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 10px; transition: 0.2s;}
+        .btn-delete:active { transform: scale(0.9); }
+
+        /* NAV BAR */
         .nav-bar { 
             display: none; justify-content: space-around; background: var(--bg-dark); 
-            padding: 4px 0 calc(env(safe-area-inset-bottom, 8px) + 2px) 0; 
+            padding: 6px 0 calc(env(safe-area-inset-bottom, 12px) + 4px) 0; 
             border-top: 1px solid var(--box-border); position: fixed; bottom: 0; left: 0; width: 100vw; 
             z-index: 1000; transition: background 0.4s ease;
         }
         body.light-hud .nav-bar { background: #ffffff; }
-        .nav-icon { font-size: 16px; cursor: pointer; color: var(--text-sub); transition: 0.3s; display: flex; flex-direction: column; align-items: center; -webkit-tap-highlight-color: transparent;}
-        .nav-icon span { font-size: 8px; margin-top: 1px; font-weight: bold; letter-spacing: 0.5px;}
-        .nav-icon.active { color: var(--text-main); transform: translateY(-1px); }
+        .nav-icon { font-size: 18px; cursor: pointer; color: var(--text-sub); transition: 0.3s; display: flex; flex-direction: column; align-items: center; -webkit-tap-highlight-color: transparent;}
+        .nav-icon span { font-size: 8.5px; margin-top: 2px; font-weight: bold; letter-spacing: 0.5px;}
+        .nav-icon.active { color: var(--text-main); transform: translateY(-2px); }
     </style>
 </head>
 <body>
@@ -221,7 +258,6 @@
         <!-- EKRANI DASHBOARD -->
         <div id="screen-dash" class="screen">
             
-            <!-- KREU I RI -->
             <div class="dash-top-box">
                 <div class="dash-brand">
                     <strong>i30</strong> <span>REMOTE</span>
@@ -235,7 +271,6 @@
                 </div>
             </div>
 
-            <!-- STATUSI LART ME 2 KOLONA KUDRATA -->
             <div class="i30-main-status">
                 <div class="i30-status-card">
                     <div class="i30-card-title">STATUSI I MAKINËS</div>
@@ -263,7 +298,7 @@
                 <div id="car-3d-loading" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); z-index: 6; font-size: 11px;"><div style="width: 18px; height: 18px; border: 2px solid rgba(0,210,255,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin3d 0.8s linear infinite; margin-right: 6px;"></div>Duke ngarkuar 3D...</div>
             </div>
 
-            <!-- BUTONAT (3-3-2) -->
+            <!-- BUTONAT -->
             <div class="action-grid">
                 <div class="action-btn" id="btn-engine" onclick="sendCommand('START')">
                     <div class="icon txt-green" id="icon-engine">⚡</div>
@@ -302,66 +337,97 @@
             </div>
         </div>
 
-        <!-- EKRANI SERVISET -->
+        <!-- EKRANI SERVISET (Modernizuar) -->
         <div id="screen-serv" class="screen">
-            <h2 style="margin-bottom: 12px; font-style: italic; font-size: 1.2rem;">SISTEMI & <span class="txt-blue">SERVISET</span></h2>
-            
-            <div class="input-group">
-                <h3>👥 SHTO PËRDORUES GUEST</h3>
-                <input type="text" id="new-guest-name" placeholder="Emri (p.sh. Vëllai)">
-                <div style="display:flex; gap:8px;">
-                    <input type="number" id="new-guest-pin" placeholder="PIN (****)" style="width:65%;">
-                    <button class="btn-primary" style="width:35%; margin-top:0;" onclick="addGuestPin()">SHTO</button>
+            <h2 style="margin-bottom: 15px; font-style: italic; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; justify-content: center;">
+                <span style="font-size: 1.5rem;">🔧</span> SISTEMI & <span class="txt-blue">SERVISET</span>
+            </h2>
+
+            <!-- INFO: Oret & Guest Services -->
+            <div class="modern-card">
+                <div class="card-header">ℹ️ INFORMACION & SHËRBIME</div>
+                <div class="telemetry-row">
+                    <span class="telemetry-label">E Hënë - E Premte</span>
+                    <span class="telemetry-val">08:00 - 18:00</span>
                 </div>
-                <div id="guest-list" style="margin-top:8px;"></div>
+                <div class="telemetry-row">
+                    <span class="telemetry-label">E Shtunë</span>
+                    <span class="telemetry-val">09:00 - 14:00</span>
+                </div>
+                <div class="telemetry-row">
+                    <span class="telemetry-label">E Diel</span>
+                    <span class="telemetry-val txt-red">Pushim</span>
+                </div>
+                <div style="margin-top: 10px; font-size: 10px; color: var(--text-sub); line-height: 1.6;">
+                    <div style="display: flex; gap: 6px; align-items: center;"><span style="color:var(--accent); font-size:12px;">✔</span> Wi-Fi Falas & Zonë Relaksi</div>
+                    <div style="display: flex; gap: 6px; align-items: center;"><span style="color:var(--accent); font-size:12px;">✔</span> Pije Freskuese & Kafe Falas</div>
+                    <div style="display: flex; gap: 6px; align-items: center;"><span style="color:var(--accent); font-size:12px;">✔</span> Makinë Zëvendësuese (sipas disponueshmërisë)</div>
+                    <div style="display: flex; gap: 6px; align-items: center;"><span style="color:var(--accent); font-size:12px;">✔</span> Asistencë Rrugore & Karrotrec 24/7</div>
+                </div>
             </div>
 
-            <div class="input-group">
-                <h3>📊 HISTORIKU I ORËVE TË PUNËS</h3>
-                <div style="display:flex; gap:8px;">
-                    <select id="history-month" style="width:50%;">
+            <!-- REGJISTRO SERVIS -->
+            <div class="modern-card">
+                <div class="card-header">🛠️ REGJISTRO SERVIS & HISTORIKU</div>
+                <input type="number" id="service-km" class="modern-input" placeholder="Kilometrat e Makinës (p.sh. 150000)" style="margin-bottom: 10px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom: 12px; font-size: 11px;">
+                    <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="srv-oil"> Vaj Motorri</label>
+                    <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="srv-oilfilter"> Filtër Vaji</label>
+                    <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="srv-air"> Filtër Ajri</label>
+                    <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="srv-ac"> Filtër Kond.</label>
+                    <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="srv-fuel"> Filtër Nafte</label>
+                </div>
+                <button class="modern-btn btn-green" onclick="saveService()">RUAJ SERVISIN E RI</button>
+                <div id="service-history" style="margin-top:12px; overflow-x:auto;"></div>
+            </div>
+
+            <!-- HISTORIKU I OREVE -->
+            <div class="modern-card">
+                <div class="card-header">📊 HISTORIKU I ORËVE TË PUNËS</div>
+                <div class="grid-2" style="margin-bottom: 10px;">
+                    <select id="history-month" class="modern-input">
                         <option value="1">Janar</option> <option value="2">Shkurt</option> <option value="3">Mars</option>
                         <option value="4">Prill</option> <option value="5">Maj</option> <option value="6">Qershor</option>
                         <option value="7">Korrik</option> <option value="8">Gusht</option> <option value="9">Shtator</option>
                         <option value="10">Tetor</option> <option value="11">Nëntor</option> <option value="12">Dhjetor</option>
                     </select>
-                    <input type="number" id="history-year" style="width:50%;" placeholder="Viti (2026)">
+                    <input type="number" id="history-year" class="modern-input" placeholder="Viti (p.sh. 2026)">
                 </div>
-                <button class="btn-primary" onclick="loadWorkHistory()">SHFAQ TË DHËNAT</button>
-                <div id="work-history-table" style="margin-top:8px; overflow-x:auto;"></div>
+                <button class="modern-btn" onclick="loadWorkHistory()">SHFAQ TË DHËNAT PËR MUAJIN</button>
+                <div id="work-history-table" style="margin-top:12px; overflow-x:auto;"></div>
             </div>
 
-            <div class="input-group">
-                <h3>🔧 REGJISTRO SERVIS & HISTORIKU</h3>
-                <input type="number" id="service-km" placeholder="Kilometrat: 150000">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-top: 4px;">
-                    <div class="service-tick"><input type="checkbox" id="srv-oil"> Vaj Motorri</div>
-                    <div class="service-tick"><input type="checkbox" id="srv-oilfilter"> Filtër Vaji</div>
-                    <div class="service-tick"><input type="checkbox" id="srv-air"> Filtër Ajri</div>
-                    <div class="service-tick"><input type="checkbox" id="srv-ac"> Filtër Kond.</div>
-                    <div class="service-tick"><input type="checkbox" id="srv-fuel"> Filtër Nafte</div>
+            <!-- SHTO PËRDORUES GUEST -->
+            <div class="modern-card">
+                <div class="card-header">👥 MENAXHO PËRDORUES SHTESË (GUEST)</div>
+                <input type="text" id="new-guest-name" class="modern-input" placeholder="Emri (p.sh. Vëllai)" style="margin-bottom: 8px;">
+                <div class="grid-2" style="margin-bottom: 8px;">
+                    <input type="number" id="new-guest-pin" class="modern-input" placeholder="PIN i ri (****)">
+                    <button class="modern-btn btn-green" onclick="addGuestPin()">SHTO</button>
                 </div>
-                <button class="btn-primary txt-green" style="border-color: #34c759;" onclick="saveService()">RUAJ SERVISIN</button>
-                <div id="service-history" style="margin-top:10px; overflow-x:auto;"></div>
+                <div id="guest-list" style="margin-top:12px;"></div>
             </div>
 
-            <div class="input-group">
-                <h3>🎨 PERSONALIZIMI I PAMJES</h3>
-                <label>URL e Logos (Login):</label>
-                <input type="text" id="set-logo-url" placeholder="http://...">
-                <label>URL e Sfondit (Aplikacioni):</label>
-                <input type="text" id="set-bg-url" placeholder="http://...">
-                <button class="btn-primary" onclick="saveAppConfig()">RUAJ PAMJEN</button>
+            <!-- PERSONALIZIMI I PAMJES -->
+            <div class="modern-card">
+                <div class="card-header">🎨 PERSONALIZIMI I PAMJES SË APLIKACIONIT</div>
+                <input type="text" id="set-logo-url" class="modern-input" placeholder="URL e Logos (Login)" style="margin-bottom: 8px;">
+                <input type="text" id="set-bg-url" class="modern-input" placeholder="URL e Sfondit (Aplikacioni)" style="margin-bottom: 10px;">
+                <button class="modern-btn btn-orange" onclick="saveAppConfig()">RUAJ PAMJEN E RE</button>
             </div>
 
-            <div class="input-group">
-                <h3>🔑 PIN I ADMINIT & KOHËT</h3>
-                <input type="password" id="new-pin" placeholder="PIN i ri admin">
-                <button class="btn-primary txt-red" style="border-color: #ff3b30;" onclick="updatePin()">NDRYSHO PIN</button>
-                <hr style="border: 0; border-bottom: 1px solid var(--box-border); margin: 12px 0;">
-                <input type="number" id="cfg-t-kandele" placeholder="Kandelet (ms)">
-                <input type="number" id="cfg-t-xhamat" placeholder="Xhamat (ms)">
-                <button class="btn-primary txt-orange" style="border-color: #ff9f0a;" onclick="ruajKohet()">DËRGO KOHËT</button>
+            <!-- PIN I ADMINIT & KOHËT (SETTINGS TEKNIKE) -->
+            <div class="modern-card">
+                <div class="card-header">⚙️ CILËSIME TEKNIKE TË SISTEMIT</div>
+                <input type="password" id="new-pin" class="modern-input" placeholder="PIN i ri për llogarinë Admin" style="margin-bottom: 8px;">
+                <button class="modern-btn btn-red" style="margin-bottom: 15px;" onclick="updatePin()">NDRYSHO PIN E ADMINIT</button>
+                
+                <div class="card-header" style="border-top: 1px solid var(--box-border); padding-top: 12px; margin-top: 5px;">⏱️ KOHËT E VEPRIMEVE HARDWARE (ms)</div>
+                <div class="grid-2" style="margin-bottom: 10px;">
+                    <input type="number" id="cfg-t-kandele" class="modern-input" placeholder="Kandelet (ms)">
+                    <input type="number" id="cfg-t-xhamat" class="modern-input" placeholder="Xhamat (ms)">
+                </div>
+                <button class="modern-btn btn-orange" onclick="ruajKohet()">DËRGO KOHËT NË MAKINË</button>
             </div>
         </div>
     </div>
@@ -583,11 +649,11 @@
                         if (gName === true) gName = "Pa Emër"; 
                         html += `
                         <div class="guest-item">
-                            <span class="guest-pin">👤 ${gName} <br><span style="font-size:10px; font-weight:normal;">PIN: ${pin}</span></span>
+                            <span class="guest-pin">👤 ${gName} <br><span style="font-size:10px; font-weight:normal; color:var(--text-sub);">PIN Hyrje: ${pin}</span></span>
                             <button class="btn-delete" onclick="deleteGuestPin('${pin}')">X</button>
                         </div>`;
                     });
-                } else { html = "<span style='color:var(--text-sub);'>Nuk ka asnjë përdorues shtesë.</span>"; }
+                } else { html = "<span style='color:var(--text-sub); font-size: 11px;'>Nuk ka asnjë përdorues shtesë.</span>"; }
                 document.getElementById('guest-list').innerHTML = html;
             });
         }
@@ -956,8 +1022,7 @@
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
             
-            // Kamera u tërhoq pak më mbrapa (z: 8.5, y: 5.2) që makina të duket më larg/më e vogël në kornizë
-            camera.position.set(-6, 5.2, 8.5);
+            camera.position.set(-5, 4.5, 6);
 
             renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
             renderer.setPixelRatio(window.devicePixelRatio);
@@ -973,7 +1038,7 @@
             controls.dampingFactor = 0.1;
             controls.enablePan = false;
             controls.minDistance = 3;
-            controls.maxDistance = 16;
+            controls.maxDistance = 14;
             controls.maxPolarAngle = Math.PI / 2.05;
             controls.target.set(0, 0.6, 0);
 
@@ -1005,8 +1070,7 @@
                 const center = box.getCenter(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z) || 1;
                 
-                // Zvogëluar pak shkalla (scale) që makina të duket më larg brenda kutisë 400px
-                const scale = 6.8 / maxDim; 
+                const scale = 7.9 / maxDim; 
                 carModel.scale.setScalar(scale);
                 carModel.position.x = -center.x * scale;
                 carModel.position.z = -center.z * scale;
