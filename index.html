@@ -22,6 +22,7 @@
 <link rel="manifest" href="manifest.json">
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -542,6 +543,15 @@ body.guest .gnote{display:block}
     </div>
 
     <div class="rowbtns">
+      <button id="btn-ac" class="btn wide bgray" onclick="sendCommand('AC_TOGGLE')">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M12 3v18M3.5 7.5l17 9M20.5 7.5l-17 9"/><path d="M12 7l2.4-2.4M12 7L9.6 4.6M12 17l2.4 2.4M12 17l-2.4 2.4"/></svg>
+        <span class="lbl" data-m="acbtn">AC: FIKUR</span></button>
+      <button id="btn-gps2" class="btn wide bpurple" onclick="sendCommand('GPS')">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="2.8"/></svg>
+        <span class="lbl">DËRGO LOKACIONIN</span></button>
+    </div>
+
+    <div class="rowbtns">
       <button id="btn-allclose" class="btn wide bblue" onclick="if(confirm('A je i sigurt që do të bësh Mbyllje Totale?'))sendCommand('ALL_CLOSE')">
         <svg class="ico" viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4.4 3 7.9 7 9 4-1.1 7-4.6 7-9V6z"/><path d="M9.2 12.2 11 14l3.8-4"/></svg>
         <span class="lbl">MBYLLJE TOTALE</span></button>
@@ -559,10 +569,12 @@ body.guest .gnote{display:block}
       <div class="row"><span>MOTORI</span><b data-m="engine">OFF</b></div>
       <div class="row"><span>DYERT</span><b data-m="locks">TË MBYLLURA</b></div>
       <div class="row"><span>ÇELËSI SERVISIT</span><b data-m="key">JO AKTIV</b></div>
+      <div class="row"><span>KONDICIONERI</span><b data-m="ac">--</b></div>
       <div class="row"><span>BATERIA</span><b data-m="battery">--.-V</b></div>
       <div class="row"><span>GPS</span><b data-m="gps">--</b></div>
       <div class="row"><span>SINJALI</span><b data-m="signal">--</b></div>
       <div class="row"><span>KILOMETRAZHI</span><b data-m="km">-- km</b></div>
+      <div class="row"><span>ORË MOTORRI (MAKINA)</span><b data-m="engineh">0h 0m</b></div>
     </div>
     <div class="card">
       <div class="title">ORËT E PUNËS</div>
@@ -814,12 +826,38 @@ const firebaseConfig={
 };
 if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
+
+/* -------------------------------------------------------------------------
+   FIREBASE AUTH (anonim)
+   Rregullat e bazes kerkojne "auth != null". Ky hyrje anonime i jep
+   aplikacionit nje identitet te vlefshem pa kerkuar email/fjalekalim —
+   PIN-i mbetet mbrojtja jote e vertete per rolet.
+   Aktivizoje: Firebase Console > Authentication > Sign-in method > Anonymous
+   ------------------------------------------------------------------------- */
+let authReady=false;
+const authWaiters=[];
+function whenAuthed(fn){authReady?fn():authWaiters.push(fn)}
+
+firebase.auth().onAuthStateChanged(u=>{
+ if(u){
+  authReady=true;
+  while(authWaiters.length)authWaiters.shift()();
+ }
+});
+firebase.auth().signInAnonymously().catch(e=>{
+ console.error("Auth deshtoi:",e.code,e.message);
+ if(e.code==="auth/operation-not-allowed"){
+  alert("Aktivizo 'Anonymous' te Firebase Console:\nAuthentication > Sign-in method > Anonymous > Enable");
+ }else if(e.code==="auth/network-request-failed"){
+  alert("Nuk ka internet. Lidhu dhe provo perseri.");
+ }
+});
 const topicCmd="jon_i30_S3kr3t_998877/komanda";
 const topicStatus="jon_i30_S3kr3t_998877/statusi";
 const mqttClient=new Paho.Client("broker.hivemq.com",8884,"App_"+Math.random().toString(16).slice(2,8));
 
 let carTimer,isMqttConnected=false,isEngineRunning=false,userRole="guest",pinEntry="";
-let isDoorsOpen=false,isKeyActive=false,carKm=0;
+let isDoorsOpen=false,isKeyActive=false,carKm=0,isAcOn=false;
 
 const ICON={
  power:'<svg class="ico-lg" viewBox="0 0 24 24"><path d="M12 3v9"/><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/></svg>',
@@ -936,6 +974,8 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 function checkLogin(){
  if(!pinEntry)return;
+ /* pa autentikim, cdo lexim kthen "Permission denied" */
+ if(!authReady){whenAuthed(checkLogin);return}
  const enter=(role,name)=>{
   sessionStorage.setItem("isAuth","true");
   sessionStorage.setItem("role",role);
@@ -990,8 +1030,11 @@ function showApp(){
  renderGreeting();
  applyRoleUI();
  initMQTT();
- lexoOretNgaFirebase();
- loadServices();loadHidden();loadLog();loadGuests();loadKm();loadHistYears();histLoad();
+ /* te gjitha leximet nisin vetem pasi autentikimi eshte gati */
+ whenAuthed(()=>{
+  lexoOretNgaFirebase();
+  loadServices();loadHidden();loadLog();loadGuests();loadKm();loadHistYears();histLoad();
+ });
 }
 function logout(){sessionStorage.clear();location.reload()}
 
@@ -1186,6 +1229,20 @@ mqttClient.onMessageArrived=msg=>{
   }
   if(d.km!==undefined){carKm=Number(d.km)||0;mirror("km",carKm.toLocaleString("sq-AL")+" km");renderServices()}
 
+  /* "th" = orët totale reale të matura nga vetë makina */
+  if(d.th!==undefined)mirror("engineh",formatHours(Number(d.th)||0));
+
+  /* "ac" = kondicioneri */
+  if(d.ac!==undefined){
+   isAcOn=d.ac===1;
+   mirror("ac",isAcOn?"NDEZUR":"FIKUR",isAcOn?"green":"gray");
+   mirror("acbtn",isAcOn?"AC: NDEZUR":"AC: FIKUR");
+   const b=document.getElementById("btn-ac");
+   if(b)b.className="btn "+(isAcOn?"bblue":"bgray");
+  }
+
+  /* "d" = alarm dere — trajtohet vetëm nga Telegram, jo në aplikacion */
+
   if(d.wh!==undefined&&d.wh>0&&userRole==="admin")handleWorkHours(d.wh);
  }catch(e){}
 };
@@ -1236,7 +1293,13 @@ function handleWorkHours(x){
   if(err||!committed||!snap)return;
   const v=snap.val()||{};
   const d=Number(v.delta)||0;
-  if(d>0)updateWorkHours(d);   /* shkruhet vetëm diferenca e vërtetë */
+  if(d>0){
+   updateWorkHours(d);        /* shkruhet vetëm diferenca e vërtetë */
+   /* Konfirmojmë te makina që orët u ruajtën, që ajo ta zerojë numëruesin
+      e vet (oreTePaderguara). Pa këtë, ESP32-ja e ridërgon të njëjtën
+      vlerë në çdo mesazh dhe orët duken sikur shtohen vazhdimisht. */
+   sendCommand("SAVED_HOURS");
+  }
  });
 }
 /* nxjerr orët totale pavarësisht si janë ruajtur: objekt {ore_totale} ose numër i thjeshtë */
@@ -2020,5 +2083,5 @@ window.addEventListener("load",()=>{
  init();
 })();
 </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2485e45eedaba85',t:'MTc4NTYyNDI3NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
