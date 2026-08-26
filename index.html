@@ -126,7 +126,9 @@ svg{display:block}
 body.light .viewer{background:radial-gradient(ellipse at 50% 62%,rgba(10,132,255,.14),transparent 60%),#0b1018}
 #canvas{width:100%;height:100%;display:block}
 .badge360{position:absolute;top:9px;left:9px;z-index:4;width:42px;height:42px;border-radius:50%;
-  border:1px solid rgba(255,255,255,.28);background:rgba(0,0,0,.35);backdrop-filter:blur(6px);
+  /* pa backdrop-filter: sfondi behet me i erret dhe efekti duket njesoj,
+     por pa krijuar shtrese GPU qe turbullon tekstin perreth ne iOS. */
+  border:1px solid rgba(255,255,255,.28);background:rgba(0,0,0,.55);
   display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
 .hint{position:absolute;top:11px;left:50%;transform:translateX(-50%);z-index:4;font-size:8px;font-weight:700;
   color:rgba(255,255,255,.6);background:rgba(0,0,0,.4);padding:4px 9px;border-radius:20px;white-space:nowrap;pointer-events:none}
@@ -174,6 +176,37 @@ body.light .viewer{background:radial-gradient(ellipse at 50% 62%,rgba(10,132,255
   border-radius:12px;padding:9px 11px;font-size:9.5px;font-weight:700;color:var(--sub);line-height:1.35;margin-bottom:11px}
 .msync b{color:var(--accent)}
 
+/* ============ MODAL: BEACON-ET ============ */
+#bScrim{position:fixed;inset:0;z-index:160;background:rgba(0,0,0,.66);backdrop-filter:blur(3px);
+  display:none;align-items:flex-end;justify-content:center}
+#bScrim.on{display:flex}
+#bModal{width:min(520px,100%);max-height:88vh;overflow-y:auto;background:var(--panel);
+  border:1px solid var(--stroke);border-radius:22px 22px 0 0;
+  padding:16px 16px calc(16px + env(safe-area-inset-bottom));
+  animation:mup .26s cubic-bezier(.3,.85,.35,1)}
+#bModal h4{margin:0 0 3px;font-size:15px;font-weight:800;letter-spacing:.4px}
+#bModal .msub{font-size:9.5px;font-weight:700;color:var(--sub2);letter-spacing:.4px;margin-bottom:13px}
+.brow{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--stroke);
+  border-radius:14px;padding:11px 12px;margin-bottom:8px}
+.brow:active{transform:scale(.985)}
+.brow .bn{width:26px;height:26px;flex:none;border-radius:50%;background:rgba(34,198,255,.14);color:var(--accent);
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+.brow .bi{flex:1;min-width:0}
+.brow .bt{font-size:12px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brow .bs{font-size:9px;font-weight:700;color:var(--sub2);margin-top:2px;font-family:ui-monospace,monospace}
+.brow .bx{flex:none;border:0;background:rgba(255,59,48,.14);color:var(--danger);border-radius:10px;
+  padding:8px 11px;font-size:10px;font-weight:800}
+.brow.free .bn{background:rgba(255,255,255,.06);color:var(--sub2)}
+.brow.free .bt{color:var(--sub2);font-weight:700}
+.bsig{flex:none;font-size:10px;font-weight:800;padding:4px 8px;border-radius:8px;background:rgba(255,255,255,.06)}
+.bsig.s3{background:rgba(48,209,88,.16);color:var(--success)}
+.bsig.s2{background:rgba(255,159,10,.16);color:var(--orange)}
+.bsig.s1{background:rgba(255,255,255,.07);color:var(--sub2)}
+.bwait{text-align:center;padding:26px 10px;color:var(--sub)}
+.bwait .spin{width:26px;height:26px;margin:0 auto 10px}
+.bwait .t{font-size:12px;font-weight:800;color:var(--text)}
+.bwait .s{font-size:9.5px;font-weight:700;color:var(--sub2);margin-top:4px}
+
 /* ============ REAGIMI NË PREKJE ============ */
 /* .press vendoset me JS sapo gishti prek — ndihet menjëherë, pa vonesë */
 /* pa will-change: ai krijon shtresa GPU dhe në iOS zhvendos zonat e prekjes */
@@ -199,10 +232,25 @@ body.light .viewer{background:radial-gradient(ellipse at 50% 62%,rgba(10,132,255
 .item.press{filter:brightness(1.12)}
 
 /* valë e lehtë drite që del nga pika e prekjes */
-.rp{position:absolute;border-radius:50%;pointer-events:none;z-index:2;
-  background:radial-gradient(circle,rgba(255,255,255,.30),rgba(255,255,255,0) 68%);
-  transform:translate(-50%,-50%) scale(0);animation:rip .5s ease-out forwards}
-@keyframes rip{to{transform:translate(-50%,-50%) scale(1);opacity:0}}
+/* 1) VALA E PREKJES — merr ngjyrën e butonit (currentColor), jo të bardhë.
+      Kështu butoni i kuq jep valë të kuqe, jeshili valë jeshile. */
+.rp{position:absolute;border-radius:50%;pointer-events:none;z-index:2;color:inherit;
+  background:radial-gradient(circle,currentColor 0%,rgba(255,255,255,.22) 35%,rgba(255,255,255,0) 70%);
+  opacity:.55;
+  transform:translate(-50%,-50%) scale(0);animation:rip .52s cubic-bezier(.22,.7,.3,1) forwards}
+@keyframes rip{60%{opacity:.28}to{transform:translate(-50%,-50%) scale(1);opacity:0}}
+
+/* 2) SHKËLQIMI I KUFIRIT kur shtypet — ndizet shpejt, shuhet butë */
+.btn.press,.mbtn.press,.mini.press,.iconbtn.press{
+  border-color:currentColor!important;
+  box-shadow:0 0 0 1px currentColor,0 0 18px -2px currentColor,
+             inset 0 2px 6px rgba(0,0,0,.30)!important;
+  animation:flashEdge .38s ease-out}
+@keyframes flashEdge{
+  0%  {filter:brightness(1.5)}
+  40% {filter:brightness(1.15)}
+  100%{filter:brightness(1)}
+}
 .btn,.mini,.iconbtn,.ditem,.mbtn,.nav,.tab{position:relative;overflow:hidden}
 /* numpad-i mbetet plotësisht statik: pa position/overflow, pa valë drite */
 /* butonat me menu rrëshqitëse nuk duhet ta presin përmbajtjen */
@@ -242,14 +290,35 @@ body.light .viewer{background:radial-gradient(ellipse at 50% 62%,rgba(10,132,255
 /* ============ BUTTONS ============ */
 /* 8 butona ne 4 kolona x 2 rreshta — me kompakt, i le hapesire 3D-se */
 .actions{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;flex:none}
-.btn{background:var(--panel);border:1px solid var(--stroke);border-radius:14px;color:var(--text);
+/* Butonat: shtresë e lehtë me thellësi + shkëlqim në ngjyrën e vet.
+   Efekti i prekjes është "shtypje" e vërtetë — buton që zhytet, jo vetëm
+   që zvogëlohet. Ngjyra ndriçon anën e sipërme, si dritë që bie mbi të. */
+.btn{position:relative;overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,0) 55%),var(--panel);
+  border:1px solid var(--stroke);border-radius:16px;color:var(--text);
   padding:5px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-  height:clamp(50px,7.2vh,62px);transition:transform .12s}
-.btn:active{transform:scale(.965)}
+  height:clamp(50px,7.2vh,62px);
+  box-shadow:0 2px 6px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.05);
+  transition:transform .1s cubic-bezier(.2,.8,.3,1),box-shadow .1s,border-color .15s}
+.btn:active{transform:translateY(1.5px) scale(.975);
+  box-shadow:0 1px 2px rgba(0,0,0,.35),inset 0 2px 5px rgba(0,0,0,.28)}
 .btn .lbl{font-size:clamp(7.5px,2.1vw,9px);font-weight:800;letter-spacing:.1px;text-align:center;line-height:1.05}
 .btn .sub{font-size:8.5px;font-weight:700;opacity:.85;line-height:1}
+
+/* Vija e hollë ndriçuese lart — merr ngjyrën e butonit */
+.btn::before{content:"";position:absolute;top:0;left:22%;right:22%;height:1.5px;
+  background:currentColor;opacity:.5;border-radius:0 0 3px 3px}
+
 .btn.bgreen{color:var(--success)}.btn.bred{color:var(--danger)}.btn.borange{color:var(--orange)}
 .btn.bblue{color:var(--blue)}.btn.bpurple{color:var(--purple)}.btn.bpink{color:var(--pink)}.btn.bgray{color:var(--sub)}
+
+/* Shkëlqim i butë në ngjyrën e vet — i dukshëm por jo i bezdisshëm */
+.btn.bgreen {border-color:rgba(48,209,88,.30); box-shadow:0 2px 6px rgba(0,0,0,.28),0 0 14px rgba(48,209,88,.10),inset 0 1px 0 rgba(255,255,255,.05)}
+.btn.bred   {border-color:rgba(255,59,48,.30); box-shadow:0 2px 6px rgba(0,0,0,.28),0 0 14px rgba(255,59,48,.10),inset 0 1px 0 rgba(255,255,255,.05)}
+.btn.borange{border-color:rgba(255,159,10,.30);box-shadow:0 2px 6px rgba(0,0,0,.28),0 0 14px rgba(255,159,10,.10),inset 0 1px 0 rgba(255,255,255,.05)}
+.btn.bblue  {border-color:rgba(10,132,255,.30);box-shadow:0 2px 6px rgba(0,0,0,.28),0 0 14px rgba(10,132,255,.10),inset 0 1px 0 rgba(255,255,255,.05)}
+.btn.bpurple{border-color:rgba(191,90,242,.30);box-shadow:0 2px 6px rgba(0,0,0,.28),0 0 14px rgba(191,90,242,.10),inset 0 1px 0 rgba(255,255,255,.05)}
+body.light .btn{box-shadow:0 1px 4px rgba(10,30,60,.10),inset 0 1px 0 rgba(255,255,255,.6)}
 .rowbtns{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);flex:none}
 .wide{flex-direction:row;gap:7px;height:clamp(38px,5.4vh,48px);padding:6px 8px}
 .wide .lbl{font-size:clamp(8.5px,2.4vw,10.5px)}
@@ -257,7 +326,12 @@ body.light .viewer{background:radial-gradient(ellipse at 50% 62%,rgba(10,132,255
 
 /* ============ NAV ============ */
 #nav{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;justify-content:space-around;
-  background:rgba(8,11,16,.94);backdrop-filter:blur(18px);border-top:1px solid var(--stroke);
+  /* backdrop-filter u hoq: sfondi eshte 94% i errët, pra turbullimi nuk
+     shihej fare — por ne iOS/WebKit ai detyronte nje shtrese te vecante
+     GPU qe rasterizonte gjithe faqen dhe e turbullonte tekstin e vogel
+     (pershendetja lart). Ndaj Reduce Transparency e "rregullonte":
+     thjesht e caktivizonte kete efekt. Tani nuk nevojitet me.        */
+  background:rgba(8,11,16,.97);border-top:1px solid var(--stroke);
   height:calc(var(--navh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
 body.light #nav{background:rgba(255,255,255,.95)}
 .nav{flex:1;min-width:0;background:none;border:0;color:var(--sub2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 2px}
@@ -396,7 +470,7 @@ body.guest .gnote{display:block}
 
 <body>
 
-<!-- ============ LOGIN ============ -->
+<!-- ============ LOGIN (PIN) ============ -->
 <div id="login">
   <div class="loginhead">
     <!-- LOGO: vendos logo.png pranë index.html dhe shfaqet automatikisht -->
@@ -408,7 +482,7 @@ body.guest .gnote{display:block}
     </div>
     <div class="loginbox">
       <h1><i>i30</i> DIGITAL REMOTE</h1>
-      <p>VENDOS KODIN PIN <span style="opacity:.55">• v2</span></p>
+      <p>VENDOS KODIN PIN</p>
     </div>
   </div>
   <!-- Pa fushe teksti: ndalon AutoFill-in e iOS qe zhvendoste faqen -->
@@ -733,7 +807,7 @@ body.guest .gnote{display:block}
     <div class="card">
       <div class="title">CILËSIMET</div>
       <div class="row"><span>TEMA</span><b class="accent" onclick="toggleDarkMode()" data-m="theme">E ERRËT</b></div>
-      <div class="row"><span>VIBRIMI</span><b class="green" onclick="toggleHaptics()" data-m="haptics">AKTIV</b></div>
+      <div class="row"><span>REAGIMI (TINGULL)</span><b class="green" onclick="toggleHaptics()" data-m="haptics">AKTIV</b></div>
       <div class="row"><span>ROLI</span><b data-m="role">--</b></div>
       <div class="row"><span>ORA</span><b data-m="clock">--:--:--</b></div>
       <div class="row"><span>MQTT</span><b data-m="online">--</b></div>
@@ -744,6 +818,52 @@ body.guest .gnote{display:block}
       <div class="row"><span>KOHA E XHAMAVE</span><b class="accent" onclick="setKohaXhamat()" data-m="txhamat">4500 ms</b></div>
       <div class="row"><span>KOHA E KANDELËS</span><b class="accent" onclick="setKohaKandele()" data-m="tkandele">3000 ms</b></div>
       <div class="row"><span>MBYLLJA TOTALE</span><b class="green" onclick="toggleMenyraMT()" data-m="mtmenyra">E SIGURT</b></div>
+    </div>
+
+    <div class="card">
+      <div class="title">HAPJA AUTOMATIKE (AFRIMI)</div>
+      <div class="row"><span>GJENDJA</span><b class="gray" onclick="bleToggle()" data-m="blegjendje">JOAKTIVE</b></div>
+      <div class="row"><span>BEACON-ËT</span><b class="accent" onclick="bleLista()" data-m="blemac">— asnjë —</b></div>
+      <div class="row"><span>DISTANCA (RSSI)</span><b class="accent" onclick="bleSetRssi()" data-m="blepragu">-60 dBm</b></div>
+      <div class="row"><span>SINJALI TANI <b class="orange" data-m="blekal" style="font-size:9px"></b></span><b class="accent" onclick="bleKalibro()" data-m="blerssi">— prek për kalibrim —</b></div>
+      <div class="row"><span>ÇELËSI RRI NDEZUR</span><b class="accent" onclick="bleSetMinuta()" data-m="blemin">5 min</b></div>
+      <div class="row"><span>ÇELËSI TANI</span><b data-m="bleceles">—</b></div>
+    </div>
+
+    <div class="card">
+      <div class="title">KYÇJA AUTOMATIKE (LARGIMI)</div>
+      <div class="row"><span>GJENDJA</span><b class="gray" onclick="bleKycToggle()" data-m="blekyc">JOAKTIVE</b></div>
+      <div class="row"><span>DISTANCA E LARGIMIT</span><b class="accent" onclick="bleSetRssiLarg()" data-m="blepraglarg">-80 dBm</b></div>
+      <div class="row"><span>PRITJA PARA KYÇJES</span><b class="accent" onclick="bleSetSek()" data-m="blesek">20 s</b></div>
+      <div class="row"><span>KYÇJE NËSE NUK PËRDORET</span><b class="accent" onclick="bleSetRikyc()" data-m="blerikyc">60 s</b></div>
+    </div>
+    <div class="rowbtns">
+      <button class="btn wide auto bblue" onclick="bleKycToggle()">
+        <svg class="ico" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <span class="lbl" data-m="blekycbtn">AKTIVIZO KYÇJEN</span></button>
+    </div>
+    <div class="rowbtns">
+      <button class="btn wide auto bblue" onclick="bleLista()">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M12 20h.01"/><path d="M8.5 16.4a5 5 0 0 1 7 0"/><path d="M5 13a10 10 0 0 1 14 0"/><path d="M1.5 9.5a15 15 0 0 1 21 0"/></svg>
+        <span class="lbl">MENAXHO BEACON-ËT</span></button>
+      <button class="btn wide auto bgreen" onclick="bleToggle()">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M7 7l10 10-5 5V2l5 5L7 17"/></svg>
+        <span class="lbl" data-m="blebtn">AKTIVIZO HAPJEN</span></button>
+    </div>
+
+    <div class="card">
+      <div class="title">INTERNETI</div>
+      <div class="row"><span>PAKETA VJETORE</span><b class="accent" onclick="setNetPaketa()" data-m="netpaketa">365 MB</b></div>
+      <div class="row"><span>PËRDORUR GJITHSEJ</span><b data-m="netot">—</b></div>
+      <div class="row"><span>SOT</span><b data-m="netsot">—</b></div>
+      <div class="row"><span>MBETEN</span><b data-m="netmbetur">—</b></div>
+      <div class="row"><span>MESATARJA</span><b data-m="netmesatare">—</b></div>
+      <div class="row"><span>PARASHIKIMI VJETOR</span><b data-m="netparashikim">—</b></div>
+    </div>
+    <div class="rowbtns">
+      <button class="btn wide auto bblue" onclick="setNetPaketa()">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M12 20h.01"/><path d="M2 8.8a15 15 0 0 1 20 0"/><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/></svg>
+        <span class="lbl">PAKETA / RIVENDOS</span></button>
     </div>
 
     <div class="card">
@@ -780,7 +900,7 @@ body.guest .gnote{display:block}
     <div class="rowbtns">
       <button class="btn wide auto bpurple" onclick="toggleHaptics()">
         <svg class="ico" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/><path d="M3.5 9v6M20.5 9v6"/></svg>
-        <span class="lbl" data-m="hapticsbtn">VIBRIMI: AKTIV</span></button>
+        <span class="lbl" data-m="hapticsbtn">REAGIMI: AKTIV</span></button>
     </div>
   </section>
 
@@ -843,6 +963,19 @@ body.guest .gnote{display:block}
   </div>
 </div>
 
+<!-- ============ MODAL: BEACON-ET ============ -->
+<div id="bScrim" onclick="if(event.target===this)bClose()">
+  <div id="bModal">
+    <h4 id="bTitle">BEACON-ËT</h4>
+    <div class="msub" id="bSub">Deri në 4 beacon-e — çelësa, orë ose byzylykë</div>
+    <div id="bBody"></div>
+    <div class="mact" id="bAct">
+      <button class="mbtn" onclick="bClose()">MBYLL</button>
+      <button class="mbtn go" id="bGo" onclick="bKerko()">KËRKO PAJISJE</button>
+    </div>
+  </div>
+</div>
+
 <nav id="nav">
   <button class="nav active" data-v="kontrolli" onclick="go('kontrolli')">
     <svg class="ico" viewBox="0 0 24 24"><path d="M18 11V6.5a1.5 1.5 0 0 0-3 0V11"/><path d="M15 10.5V4.5a1.5 1.5 0 0 0-3 0V11"/><path d="M12 10.5v-5a1.5 1.5 0 0 0-3 0V13"/><path d="M9 12.5V9a1.5 1.5 0 1 0-3 0v7c0 3.3 2.7 6 6 6h1.5a6 6 0 0 0 6-6v-5"/></svg>
@@ -877,16 +1010,18 @@ const db=firebase.database();
 
 /* -------------------------------------------------------------------------
    FIREBASE AUTH (anonim)
-   Rregullat e bazes kerkojne "auth != null". Ky hyrje anonime i jep
-   aplikacionit nje identitet te vlefshem pa kerkuar email/fjalekalim —
-   PIN-i mbetet mbrojtja jote e vertete per rolet.
+   Rregullat e bazes kerkojne "auth != null". Hyrja anonime i jep aplikacionit
+   nje identitet te vlefshem pa kerkuar email — PIN-i mbetet mbrojtja per rolet.
    Aktivizoje: Firebase Console > Authentication > Sign-in method > Anonymous
    ------------------------------------------------------------------------- */
 let authReady=false;
 const authWaiters=[];
 function whenAuthed(fn){authReady?fn():authWaiters.push(fn)}
 
+let authUser=null, roliNgaLlogaria=null;
+
 firebase.auth().onAuthStateChanged(u=>{
+ authUser=u;
  if(u){
   authReady=true;
   while(authWaiters.length)authWaiters.shift()();
@@ -900,6 +1035,7 @@ firebase.auth().signInAnonymously().catch(e=>{
   alert("Nuk ka internet. Lidhu dhe provo perseri.");
  }
 });
+
 /* -------------------------------------------------------------------------
    TOPIKËT NUK NDODHEN NË KOD
    Ruhen te Firebase (mqttConfig/) dhe lexohen vetëm PAS hyrjes me PIN.
@@ -933,7 +1069,12 @@ function mirror(key,text,cls){
  });
 }
 function isAdmin(){return userRole==="admin"}
-function needAdmin(){if(isAdmin())return true;alert("⛔ Vetëm ADMIN ka akses për këtë veprim.");return false}
+function needAdmin(){
+ if(isAdmin())return true;
+ alert("⛔ Vetëm ADMIN ka akses.\n\nRoli yt: "+(userRole||"—").toUpperCase()+
+   "\n\nDil dhe hyr me PIN-in e adminit.");
+ return false;
+}
 
 /* =========================================================================
    2) LOGIN / PIN — IDENTIKE
@@ -944,18 +1085,62 @@ function needAdmin(){if(isAdmin())return true;alert("⛔ Vetëm ADMIN ka akses p
 const TAP_SEL=".btn,.num,.mini,.iconbtn,.ditem,.mbtn,.nav,.tab,.themepill,.dots b,.item";
 let hapticOn=localStorage.getItem("haptics")!=="0";
 
+/* =========================================================================
+   3) TINGULLI I PREKJES
+   Vibrimi NUK punon në iPhone — Apple nuk e ka implementuar kurrë
+   navigator.vibrate() në WebKit, dhe çdo shfletues në iOS përdor WebKit.
+   Prandaj përdorim një "tik" shumë të shkurtër me Web Audio, që punon.
+
+   Konteksti krijohet vetëm pas prekjes së parë (iOS e kërkon këtë) dhe
+   ripërdoret — krijimi i një konteksti të ri për çdo prekje do ta mbyste
+   shfletuesin.
+   ========================================================================= */
+let audioCtx=null;
+function initAudio(){
+ if(audioCtx)return audioCtx;
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)return null;
+  audioCtx=new AC();
+ }catch(e){audioCtx=null}
+ return audioCtx;
+}
+/* freq = lartësia, vol = fortësia, ms = kohëzgjatja */
+function tik(freq=2000,vol=0.05,ms=18){
+ if(!hapticOn)return;                 /* i njëjti çelës si vibrimi */
+ const ctx=initAudio();
+ if(!ctx)return;
+ try{
+  if(ctx.state==="suspended")ctx.resume();
+  const o=ctx.createOscillator(),g=ctx.createGain();
+  o.type="triangle";                  /* më i butë se "square" */
+  o.frequency.value=freq;
+  /* zbutje e shpejtë: pa të dëgjohet një "klik" i vrazhdë */
+  g.gain.setValueAtTime(0,ctx.currentTime);
+  g.gain.linearRampToValueAtTime(vol,ctx.currentTime+0.004);
+  g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+ms/1000);
+  o.connect(g);g.connect(ctx.destination);
+  o.start();
+  o.stop(ctx.currentTime+ms/1000+0.02);
+ }catch(e){}
+}
+
 function buzz(ms){
  if(!hapticOn)return;
+ /* Në Android vibron; në iPhone thjesht nuk ndodh gjë (API mungon). */
  try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}
 }
 /* forca e vibrimit sipas rëndësisë së butonit */
+/* Vibrim (Android) + tik (të gjitha, përfshirë iPhone).
+   Lartësia e tingullit ndryshon sipas rëndësisë: sa më i thellë, aq më
+   serioz veprimi. Kështu e "ndjen" ndryshimin edhe pa e parë ekranin. */
 function buzzFor(el){
- if(el.matches(".num"))return buzz(9);
- if(el.matches(".mini,.dots b"))return buzz(8);
- if(el.matches(".nav,.tab,.iconbtn,.themepill"))return buzz(7);
- if(el.matches(".btn.bred,.mbtn.go"))return buzz(16);   /* veprime të forta */
- if(el.matches(".btn,.mbtn,.ditem"))return buzz(12);
- return buzz(6);
+ if(el.matches(".num")){                       buzz(9);  tik(2400,.035,12); return}
+ if(el.matches(".mini,.dots b")){              buzz(8);  tik(2200,.035,12); return}
+ if(el.matches(".nav,.tab,.iconbtn,.themepill")){buzz(7);tik(2600,.030,10); return}
+ if(el.matches(".btn.bred,.mbtn.go")){         buzz(16); tik(1200,.070,26); return}  /* veprime të forta */
+ if(el.matches(".btn,.mbtn,.ditem")){          buzz(12); tik(1700,.050,18); return}
+ buzz(6); tik(2400,.030,10);
 }
 function ripple(el,x,y){
  /* numpad-i përjashtohet: çdo element shtesë brenda tij e zhvendos paraqitjen */
@@ -1000,8 +1185,8 @@ function setKohaXhamat(){
  if(v===null)return;
  const n=parseInt(String(v).replace(/\D/g,""),10);
  if(isNaN(n)||n<500||n>20000){alert("Vendos një vlerë ndërmjet 500 dhe 20000 ms.");return}
+ if(!sendCommand("CFG:T_XHAMAT:"+n))return;   /* pa lidhje -> mos e ruaj */
  localStorage.setItem("tXhamat",n);
- sendCommand("CFG:T_XHAMAT:"+n);
  syncKohet();showFeedback("🪟 Koha e xhamave: "+n+" ms");
 }
 function setKohaKandele(){
@@ -1011,8 +1196,8 @@ function setKohaKandele(){
  if(v===null)return;
  const n=parseInt(String(v).replace(/\D/g,""),10);
  if(isNaN(n)||n<500||n>20000){alert("Vendos një vlerë ndërmjet 500 dhe 20000 ms.");return}
+ if(!sendCommand("CFG:T_KANDELE:"+n))return;
  localStorage.setItem("tKandele",n);
- sendCommand("CFG:T_KANDELE:"+n);
  syncKohet();showFeedback("⚡ Koha e kandelës: "+n+" ms");
 }
 
@@ -1020,12 +1205,13 @@ function toggleHaptics(){
  hapticOn=!hapticOn;
  localStorage.setItem("haptics",hapticOn?"1":"0");
  syncHaptics();
- if(hapticOn)buzz(14);
- showFeedback(hapticOn?"📳 Vibrimi u aktivizua":"🔕 Vibrimi u çaktivizua");
+ /* Kur ndizet, jep një provë: dy tinguj të shkurtër ngjitur */
+ if(hapticOn){buzz(14);tik(1800,.06,20);setTimeout(()=>tik(2400,.05,16),90)}
+ showFeedback(hapticOn?"🔊 Reagimi u aktivizua":"🔕 Reagimi u çaktivizua");
 }
 function syncHaptics(){
  mirror("haptics",hapticOn?"AKTIV":"JOAKTIV",hapticOn?"green":"gray");
- mirror("hapticsbtn","VIBRIMI: "+(hapticOn?"AKTIV":"JOAKTIV"));
+ mirror("hapticsbtn","REAGIMI: "+(hapticOn?"AKTIV":"JOAKTIV"));
 }
 
 function drawPin(){
@@ -1127,8 +1313,28 @@ function showApp(){
  });
 }
 
-/* Merr topikët nga Firebase dhe vetëm atëherë hap lidhjen MQTT */
+/* Merr topikët nga Firebase dhe vetëm atëherë hap lidhjen MQTT.
+
+   NISJE E SHPEJTË: topikët e lexuar një herë ruhen edhe lokalisht. Herën
+   tjetër lidhja MQTT nis MENJËHERË, pa pritur Firebase-in (auth anonim +
+   leximi zgjatnin 2-5 sekonda). Firebase lexohet gjithsesi në sfond, dhe
+   nëse topikët kanë ndryshuar, lidhja rihapet me ata të rinjtë.          */
 function loadTopics(){
+ /* 1) Provo menjëherë me ata të ruajtur.
+    Ruhen te sessionStorage, JO te localStorage: fshihen vetvetiu kur
+    mbyllet skeda dhe pastrohen nga logout(). Kështu topikët nuk mbeten
+    përgjithmonë në telefon — mbrojtja që kishim kur i hoqëm nga kodi
+    mbetet e paprekur.                                                 */
+ try{
+  const rc=sessionStorage.getItem("topicCmd"), rs=sessionStorage.getItem("topicStatus");
+  if(rc&&rs&&!topicCmd){
+   topicCmd=rc; topicStatus=rs;
+   console.log("Topikët nga sesioni — lidhje e shpejtë");
+   initMQTT();
+  }
+ }catch(e){}
+
+ /* 2) Lexo Firebase-in gjithsesi, për të konfirmuar ose përditësuar */
  db.ref("mqttConfig").once("value").then(s=>{
   const c=s.val();
   console.log("mqttConfig nga Firebase:",c);
@@ -1186,6 +1392,20 @@ function loadTopics(){
   console.log("Topikët u ngarkuan ✓");
   console.log("  komanda:",topicCmd);
   console.log("  statusi:",topicStatus);
+
+  /* Ruaji për nisjen e shpejtë herën tjetër. Nëse ndryshuan ndaj atyre që
+     u përdorën për lidhjen e menjëhershme, lidhja rihapet me të rinjtë. */
+  try{
+   const vjeter=sessionStorage.getItem("topicCmd");
+   sessionStorage.setItem("topicCmd",topicCmd);
+   sessionStorage.setItem("topicStatus",topicStatus);
+   if(vjeter&&vjeter!==topicCmd&&isMqttConnected){
+    console.log("Topikët ndryshuan — rihapet lidhja");
+    try{mqttClient.disconnect()}catch(e){}
+    isMqttConnected=false;mqttBusy=false;
+   }
+  }catch(e){}
+
   initMQTT();
  }).catch(e=>{
   console.error("mqttConfig — gabim leximi:",e&&e.code,e&&e.message);
@@ -1353,6 +1573,340 @@ function setTgPrag(){
    .then(()=>{syncTg();showFeedback("🔔 Pragu: "+n+" orë")});
  });
 }
+/* =========================================================================
+   BLE — hyrja me beacon
+   ========================================================================= */
+let bleOn=false, bleMacRuajtur="", blePragRuajtur=-60, bleSkanimPret=false, bleKycOn=false;
+/* Deklarohen KETU (jo me poshte) qe te jene te gatshme para se ndonje
+   funksion i dritares se beacon-eve te thirret nga nje prekje. */
+let bleSlotPerCaktim=-1, bleSkanimTimer=null, bleGjetjet=[], bleFaqetPritura=null;
+
+function syncBle(){
+ mirror("blegjendje", bleOn?"AKTIVE":"JOAKTIVE", bleOn?"green":"gray");
+ mirror("blebtn", bleOn?"ÇAKTIVIZO HAPJEN":"AKTIVIZO HAPJEN");
+ mirror("blemac", bleMacRuajtur||"— zgjidh —", bleMacRuajtur?"green":"orange");
+ mirror("blepragu", blePragRuajtur+" dBm");
+}
+
+function bleToggle(){
+ if(!needAdmin())return;
+ if(!bleOn&&!bleNumRegj()){alert("Së pari regjistro të paktën një beacon te 'BEACON-ËT'.");return}
+ bleOn=!bleOn;
+ sendCommand(bleOn?"BLE_ON":"BLE_OFF");
+ syncBle();
+ showFeedback(bleOn?"🔓 Hapja automatike u aktivizua":"📴 Hapja u çaktivizua");
+}
+
+/* Lista e beacon-eve te regjistruar */
+let bleSlots=[{m:"",n:""},{m:"",n:""},{m:"",n:""},{m:"",n:""}];
+
+function bleNumRegj(){return bleSlots.filter(x=>x.m&&x.m.length>=11).length}
+
+function bleSyncLista(){
+ const n=bleNumRegj();
+ if(!n){mirror("blemac","— asnjë —","orange");return}
+ const emrat=bleSlots.filter(x=>x.m).map(x=>x.n||x.m.slice(-5)).join(", ");
+ mirror("blemac",n+" ("+emrat+")","green");
+}
+
+/* =========================================================================
+   DRITARJA E BEACON-EVE
+   Më parë kjo ishte një zinxhir dritaresh 'prompt'. Në iPhone, kur aplikacioni
+   hapet nga ekrani kryesor (standalone), Safari e bllokon prompt-in e dytë
+   nëse nuk vjen drejtpërdrejt nga një prekje — dhe prompt-i i listës vinte nga
+   një mesazh MQTT, jo nga gishti. Prandaj shtypje numrin dhe pastaj nuk dilte
+   asgjë. Tani gjithçka bëhet me butona brenda një dritareje të vërtetë.
+   ========================================================================= */
+function bOpen(){document.getElementById("bScrim").classList.add("on")}
+function bClose(){
+ document.getElementById("bScrim").classList.remove("on");
+ bleSkanimPret=false;bleSlotPerCaktim=-1;
+ clearTimeout(bleSkanimTimer);
+}
+
+function esc(s){
+ return String(s==null?"":s).replace(/[&<>"']/g,c=>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* Pamja 1 — lista e beacon-ëve të regjistruar */
+function bleLista(){
+ if(!needAdmin())return;
+ bleSlotPerCaktim=-1;bleSkanimPret=false;
+ document.getElementById("bTitle").textContent="BEACON-ËT";
+ document.getElementById("bSub").textContent="Deri në 4 beacon-e — çelësa, orë ose byzylykë";
+ document.getElementById("bAct").style.display="";
+ document.getElementById("bGo").style.display="none";
+
+ let h="";
+ bleSlots.forEach((b,i)=>{
+  if(b.m){
+   h+='<div class="brow"><div class="bn">'+(i+1)+'</div>'+
+      '<div class="bi" onclick="bZgjidhVend('+i+')">'+
+        '<div class="bt">'+esc(b.n||"PA EMËR")+'</div>'+
+        '<div class="bs">'+esc(b.m)+'</div></div>'+
+      '<button class="bx" onclick="bFshi('+i+')">FSHI</button></div>';
+  }else{
+   h+='<div class="brow free" onclick="bZgjidhVend('+i+')">'+
+      '<div class="bn">'+(i+1)+'</div>'+
+      '<div class="bi"><div class="bt">— vend i lirë —</div>'+
+      '<div class="bs">prek për të shtuar një beacon</div></div></div>';
+  }
+ });
+ document.getElementById("bBody").innerHTML=h;
+ bOpen();
+}
+
+function bFshi(i){
+ if(!bleSlots[i].m)return;
+ if(!confirm("Fshi beacon-in \""+(bleSlots[i].n||bleSlots[i].m)+"\"?"))return;
+ if(!sendCommand("BLE_DEL:"+i))return;
+ bleSlots[i]={m:"",n:""};
+ localStorage.setItem("bleSlots",JSON.stringify(bleSlots));
+ bleSyncLista();showFeedback("🗑️ Beacon-i u fshi");
+ bleLista();
+}
+
+/* Pamja 2 — zgjodhe vendin, tani skanohet */
+
+function bZgjidhVend(i){
+ bleSlotPerCaktim=i;bleIshteThelle=false;
+ document.getElementById("bTitle").textContent="VENDI "+(i+1);
+ document.getElementById("bSub").textContent="Mbaje pajisjen pranë makinës dhe shtyp KËRKO";
+ const g=document.getElementById("bGo");
+ g.style.display="";g.textContent="KËRKO PAJISJE";g.onclick=()=>bKerko(false);
+ document.getElementById("bBody").innerHTML=
+  '<div class="msync"><span>Pajisja duhet të jetë <b>e ndezur</b> dhe brenda '+
+  'pak metrash nga makina. Kërkimi zgjat rreth 5 sekonda.</span></div>'+
+  '<div class="msync" style="background:rgba(255,159,10,.08);border-color:rgba(255,159,10,.22)">'+
+  '<span>Po provon me një <b>orë</b>? Fike Bluetooth-in te telefoni së pari — '+
+  'shumica e orëve nuk transmetojnë fare kur janë të lidhura me telefonin.</span></div>';
+}
+
+function bKerko(thelle){
+ if(!isMqttConnected){alert("Nuk ka lidhje me makinën.");return}
+ if(bleSlotPerCaktim<0){bleLista();return}
+ bleSkanimPret=true;bleFaqetPritura=null;bleGjetjet=[];bleIshteThelle=!!thelle;
+ document.getElementById("bGo").style.display="none";
+ document.getElementById("bBody").innerHTML=
+  '<div class="bwait"><div class="spin"></div>'+
+  '<div class="t">Duke kërkuar pajisje...</div>'+
+  '<div class="s">'+(thelle?"kërkim i thellë — 12 sekonda":"rreth 5 sekonda")+'</div></div>';
+ if(!sendCommand(thelle?"BLE_SCAN2":"BLE_SCAN")){bleSkanimPret=false;bleLista();return}
+ clearTimeout(bleSkanimTimer);
+ bleSkanimTimer=setTimeout(()=>{
+  if(!bleSkanimPret)return;
+  bleSkanimPret=false;
+  document.getElementById("bBody").innerHTML=
+   '<div class="bwait"><div class="t">Makina nuk u përgjigj</div>'+
+   '<div class="s">Kontrollo lidhjen dhe provo sërish</div></div>';
+  document.getElementById("bGo").style.display="";
+ },thelle?30000:20000);
+}
+let bleIshteThelle=false;
+
+/* Faqet vijnë veç e veç nga ESP32-shi dhe grumbullohen këtu */
+
+function bleShfaqListen(lista,faqe,total){
+ if(!bleSkanimPret)return;
+
+ /* firmware i vjetër: pa numër faqeje — trajtohet si listë e vetme */
+ if(faqe===undefined){bleGjetjet=lista||[];bleFundiSkanimit();return}
+
+ bleFaqetPritura=total;
+ (lista||[]).forEach(d=>{
+  if(!bleGjetjet.some(x=>x.m===d.m))bleGjetjet.push(d);
+ });
+ if(faqe+1>=total)bleFundiSkanimit();
+}
+
+function bleFundiSkanimit(){
+ bleSkanimPret=false;clearTimeout(bleSkanimTimer);
+ const lista=bleGjetjet;
+ if(!lista.length){
+  document.getElementById("bBody").innerHTML=
+   '<div class="bwait"><div class="t">Nuk u gjet asnjë pajisje</div>'+
+   '<div class="s">Sigurohu që beacon-i është i ndezur dhe afër</div></div>'+
+   (bleIshteThelle?"":
+    '<div class="msync"><span>Nëse po provon me një <b>orë</b>: shkëpute nga '+
+    'telefoni (Bluetooth OFF te telefoni) — orët nuk transmetojnë kur janë '+
+    'të lidhura. Pastaj provo <b>KËRKIM I THELLË</b>.</span></div>');
+  document.getElementById("bGo").style.display="";
+  bSetGo();
+  return;
+ }
+ lista.sort((a,b)=>b.r-a.r);
+ document.getElementById("bSub").textContent="Prek pajisjen tënde — më i forti është i pari";
+ let h="";
+ lista.forEach((d,i)=>{
+  const r=Number(d.r);
+  const kl=r>=-60?"s3":(r>=-80?"s2":"s1");
+  const dist=r>=-55?"shumë afër":(r>=-70?"afër":(r>=-85?"mesatare":"larg"));
+  /* t = lloji i adresës: 1 ose 3 do të thotë e rastësishme (ndërrohet vetë) */
+  const rast=(d.t===1||d.t===3);
+  h+='<div class="brow" onclick="bCakto('+i+')">'+
+     '<div class="bn">'+(i+1)+'</div>'+
+     '<div class="bi"><div class="bt">'+esc(d.n&&d.n.trim()?d.n:"(pa emër)")+
+       (rast?' <span style="color:var(--orange);font-size:9px">⚠ e rastësishme</span>':'')+'</div>'+
+     '<div class="bs">'+esc(d.m)+' · '+dist+'</div></div>'+
+     '<div class="bsig '+kl+'">'+r+'</div></div>';
+ });
+ if(lista.some(d=>d.t===1||d.t===3)){
+  h+='<div class="msync"><span>Pajisjet me <b>⚠ e rastësishme</b> e ndërrojnë '+
+     'adresën çdo 15 minuta. Nëse zgjedh një të tillë, hapja do të pushojë '+
+     'së punuari pas pak kohe.</span></div>';
+ }
+ document.getElementById("bBody").innerHTML=h;
+ document.getElementById("bGo").style.display="";
+ bSetGo();
+}
+
+/* Butoni ndryshon sipas asaj që sapo u provua */
+function bSetGo(){
+ const g=document.getElementById("bGo");
+ if(bleIshteThelle){g.textContent="KËRKO SËRISH";g.onclick=()=>bKerko(true)}
+ else{g.textContent="KËRKIM I THELLË (12s)";g.onclick=()=>bKerko(true)}
+}
+
+/* Pamja 3 — emri; prompt-i këtu vjen nga prekja, ndaj lejohet nga iOS */
+function bCakto(i){
+ const d=bleGjetjet[i];if(!d)return;
+ const mac=String(d.m||"").toLowerCase();
+ if(mac.length<11){alert("Adresë e pavlefshme.");return}
+ if(d.t===1||d.t===3){
+  if(!confirm("⚠️ KUJDES\n\nKjo pajisje përdor adresë të RASTËSISHME — "+
+    "e ndërron vetë çdo 10-15 minuta.\n\nHapja automatike do të punojë tani, "+
+    "por do të pushojë brenda pak kohe.\n\nPërdore vetëm PËR PROVË.\n\nTë vazhdoj?"))return;
+ }
+ const sug=d.n&&d.n.trim()?d.n.trim().toUpperCase():"";
+ const emri=prompt("Emri i pronarit të këtij beacon-i:\n(shfaqet te njoftimet)",sug||"JON");
+ if(emri===null)return;
+ const em=String(emri).trim().toUpperCase().replace(/[^A-ZÇË0-9 ]/g,"").slice(0,12);
+ if(!sendCommand("BLE_MAC:"+bleSlotPerCaktim+":"+mac+":"+em))return;
+ bleSlots[bleSlotPerCaktim]={m:mac,n:em};
+ bleMacRuajtur=bleSlots[0].m||mac;
+ localStorage.setItem("bleSlots",JSON.stringify(bleSlots));
+ bleSyncLista();
+ showFeedback("✅ "+(em||mac)+" u regjistrua");
+ document.getElementById("bGo").textContent="KËRKO PAJISJE";
+ bleLista();
+}
+
+function bleKycToggle(){
+ if(!needAdmin())return;
+ if(!bleNumRegj()){alert("Së pari regjistro të paktën një beacon.");return}
+ bleKycOn=!bleKycOn;
+ sendCommand(bleKycOn?"BLEK_ON":"BLEK_OFF");
+ mirror("blekyc",bleKycOn?"AKTIVE":"JOAKTIVE",bleKycOn?"green":"gray");
+ mirror("blekycbtn",bleKycOn?"ÇAKTIVIZO KYÇJEN":"AKTIVIZO KYÇJEN");
+ showFeedback(bleKycOn?"🔐 Kyçja automatike u aktivizua":"🔓 U çaktivizua");
+}
+
+function bleSetRssiLarg(){
+ if(!needAdmin())return;
+ const cur=localStorage.getItem("blePragLarg")||"-80";
+ const v=prompt("Distanca e kyçjes (RSSI në dBm)\n\n"+
+   "Duhet MË E VOGËL se pragu i afrimit ("+blePragRuajtur+" dBm),\n"+
+   "që makina të mos kyçet e shkyçet vazhdimisht.\n\n"+
+   "-70 ≈ 5-7 m\n-80 ≈ 10-15 m  ← e rekomanduar\n-90 ≈ shumë larg",cur);
+ if(v===null)return;
+ const n=parseInt(v,10);
+ if(isNaN(n)||n>=0||n<-99){alert("Vendos numër ndërmjet -1 dhe -99.");return}
+ if(n>blePragRuajtur-10){
+  if(!confirm("Kujdes: kjo vlerë është shumë afër pragut të afrimit.\n"+
+    "Makina mund të kyçet e shkyçet vazhdimisht.\n\nTë vazhdoj?"))return;
+ }
+ localStorage.setItem("blePragLarg",n);
+ sendCommand("BLE_RLARG:"+n);
+ mirror("blepraglarg",n+" dBm");
+ showFeedback("📏 Largimi: "+n+" dBm");
+}
+
+function bleSetSek(){
+ if(!needAdmin())return;
+ const cur=localStorage.getItem("bleSek")||"20";
+ const v=prompt("Sa sekonda pa u parë beacon-i para se të kyçet?\n\n"+
+   "Më e vogël = kyçet më shpejt, por rrezik kyçjeje të parakohshme.\n"+
+   "Vlera: 5–300 sekonda",cur);
+ if(v===null)return;
+ const n=parseInt(v,10);
+ if(isNaN(n)||n<5||n>300){alert("Vendos numër ndërmjet 5 dhe 300.");return}
+ localStorage.setItem("bleSek",n);
+ sendCommand("BLE_SEK:"+n);
+ mirror("blesek",n+" s");
+ showFeedback("⏱️ Pritja: "+n+" s");
+}
+
+/* Sa rri e shkyçur nëse thjesht kalove pa e përdorur makinën */
+function bleSetRikyc(){
+ if(!needAdmin())return;
+ const cur=localStorage.getItem("bleRikyc")||"60";
+ const v=prompt("Nëse dyert shkyçen me beacon por NUK e hap derën dhe NUK e "+
+   "ndez motorrin, pas sa sekondash të kyçet vetë?\n\n"+
+   "Kjo të mbron kur thjesht kalon pranë makinës.\n"+
+   "Anulohet menjëherë sapo hapet dera ose ndizet motorri.\n\n"+
+   "Vlera: 15–600 sekonda",cur);
+ if(v===null)return;
+ const n=parseInt(v,10);
+ if(isNaN(n)||n<15||n>600){alert("Vendos numër ndërmjet 15 dhe 600.");return}
+ localStorage.setItem("bleRikyc",n);
+ sendCommand("BLE_RIKYC:"+n);
+ mirror("blerikyc",n+" s");
+ showFeedback("🔒 Kyçje pas "+n+" s");
+}
+
+function bleSetMinuta(){
+ if(!needAdmin())return;
+ const cur=localStorage.getItem("bleMin")||"5";
+ const v=prompt("Sa minuta të rrijë çelësi i ndezur pasi shkyçen dyert?\n\n"+
+   "Kjo është koha që ke për të hyrë dhe ndezur makinën me butonin fizik.\n"+
+   "Nëse motori ndizet, afati anulohet vetvetiu.\n\n"+
+   "Vlera: 1–30 minuta",cur);
+ if(v===null)return;
+ const n=parseInt(v,10);
+ if(isNaN(n)||n<1||n>30){alert("Vendos një numër ndërmjet 1 dhe 30.");return}
+ localStorage.setItem("bleMin",n);
+ sendCommand("BLE_MIN:"+n);
+ mirror("blemin",n+" min");
+ showFeedback("⏱️ Çelësi rri "+n+" minuta");
+}
+
+/* KALIBRIMI — ndez përditësimin e shpeshtë të sinjalit për 3 minuta.
+   Pa këtë, statusi vjen çdo 2 minuta dhe s'e sheh dot sinjalin të lëvizë.
+   Me afat, sepse dërgimi çdo 3s gjithë ditën do të hante ~250 MB/muaj. */
+let bleKalTimer=null;
+function bleKalibro(){
+ if(!needAdmin())return;
+ if(!sendCommand("BLE_KAL"))return;
+ showFeedback("📡 Kalibrimi: 3 minuta");
+ let mbetur=180;
+ clearInterval(bleKalTimer);
+ bleKalTimer=setInterval(()=>{
+  mbetur-=1;
+  if(mbetur<=0){clearInterval(bleKalTimer);mirror("blekal","");return}
+  mirror("blekal",mbetur+"s");
+ },1000);
+ mirror("blekal","180s");
+}
+
+function bleSetRssi(){
+ if(!needAdmin())return;
+ const v=prompt("Distanca e aktivizimit (RSSI në dBm)\n\n"+
+   "-50 ≈ 1 m (shumë afër)\n"+
+   "-60 ≈ 2-3 m  ← e rekomanduar\n"+
+   "-70 ≈ 5-7 m\n"+
+   "-80 ≈ 10-15 m\n\n"+
+   "Sa më afër zeros, aq më afër duhet të jesh:",blePragRuajtur);
+ if(v===null)return;
+ const n=parseInt(v,10);
+ if(isNaN(n)||n>=0||n<-99){alert("Vendos një numër ndërmjet -1 dhe -99.");return}
+ blePragRuajtur=n;
+ sendCommand("BLE_RSSI:"+n);
+ localStorage.setItem("blePrag",n);
+ syncBle();
+ showFeedback("📏 Pragu: "+n+" dBm");
+}
+
 function syncTg(){
  /* tokeni nuk lexohet dot — shfaqim vetem nese eshte vendosur */
  db.ref("telegramConfig/tokenSet").once("value").then(s=>{
@@ -1372,9 +1926,12 @@ function syncMenyraMT(){
  mirror("mtmenyra",hh?"HAP PAS HAPI":"E SIGURT",hh?"orange":"green");
 }
 function sendCommand(cmd){
- if(!topicCmd){showFeedback("⚠️ Cilësimet MQTT s'u ngarkuan");return}
- if(!isMqttConnected){initMQTT();alert("Duke u rilidhur me MQTT...");return}
- try{const m=new Paho.Message(cmd);m.destinationName=topicCmd;m.qos=1;mqttClient.send(m)}catch(e){isMqttConnected=false}
+ if(!topicCmd){showFeedback("⚠️ Cilësimet MQTT s'u ngarkuan");return false}
+ if(!isMqttConnected){initMQTT();alert("Nuk ka lidhje me makinën.\nDuke u rilidhur...");return false}
+ try{
+  const m=new Paho.Message(cmd);m.destinationName=topicCmd;m.qos=1;mqttClient.send(m);
+  return true;
+ }catch(e){isMqttConnected=false;setOnline(false);return false}
 }
 function pingCar(manual){
  if(!topicCmd)return;
@@ -1399,8 +1956,12 @@ function setOnline(ok){
  mirror("online",ok?"ONLINE":"OFFLINE",ok?"green":"red");
  const g=document.getElementById("val-gps");
  if(!g.dataset.live){g.textContent=ok?"AKTIV":"JO AKTIV";g.className="v "+(ok?"green":"red");mirror("gps",ok?"AKTIV":"JO AKTIV",ok?"green":"red")}
+ /* Sinjali: kur makina është offline tregohet "--", jo "0%" — nuk e dimë
+    sa valë ka, thjesht nuk kemi lidhje. Vlera reale vjen nga ESP32 (fusha
+    "s") dhe e vendos dataset.live, që ky rresht të mos e mbivendosë.  */
  const s=document.getElementById("val-signal");
- if(!s.dataset.live){s.textContent=ok?"100%":"0%";s.className="v";mirror("signal",ok?"100%":"0%")}
+ if(!ok){s.dataset.live="";s.textContent="--";s.className="v";mirror("signal","--")}
+ else if(!s.dataset.live){s.textContent="...";s.className="v";mirror("signal","...")}
 }
 let mqttBusy=false,retryDelay=2000;
 function initMQTT(){
@@ -1445,7 +2006,32 @@ setInterval(()=>{
 },15000);
 
 document.addEventListener("visibilitychange",()=>{
- if(document.visibilityState==="visible"){syncViewport();initMQTT();pingCar(false)}
+ if(document.visibilityState==="visible"){
+  syncViewport();
+  /* Kur app-i rihapet, gjendja në ekran mund të jetë e vjetër: ndërkohë
+     makina mund të jetë kyçur nga beacon-i, por ai mesazh humbi sepse
+     app-i ishte i mbyllur (MQTT s'i ruan mesazhet për klientët offline).
+     Prandaj kërkohet gjendja e freskët. initMQTT() është asinkron — nëse
+     lidhja s'është gati, pingCar dështon në heshtje. Prandaj provohet
+     disa herë derisa lidhja të vendoset. */
+  initMQTT();
+  if(document.visibilityState==="visible"){
+   let prova=0;
+   const kerko=()=>{
+    if(document.visibilityState!=="visible")return;
+    if(isMqttConnected){pingCar(false);return}
+    if(++prova<10)setTimeout(kerko,700);
+   };
+   kerko();
+  }
+ }
+ else{
+  /* App-i shkoi në sfond — fike kalibrimin që të mos harxhojë internet.
+     Pa këtë, dërgimi i shpeshtë do vazhdonte deri sa të skadonin 3 minutat
+     edhe pse ti s'po e sheh më ekranin. */
+  if(bleKalTimer){clearInterval(bleKalTimer);bleKalTimer=null;mirror("blekal","");
+   try{sendCommand("BLE_KAL_OFF")}catch(e){}}
+ }
 });
 /* pas mbylljes së login-it, scroll-i sigurohet përsëri në zero */
 document.addEventListener("DOMContentLoaded",()=>{
@@ -1462,6 +2048,39 @@ mqttClient.onMessageArrived=msg=>{
  clearTimeout(carTimer);setOnline(true);
  try{
   const d=JSON.parse(msg.payloadString);
+
+  /* pergjigja e skanimit BLE — vjen e ndare ne faqe (bsf = faqja, bst = totali) */
+  if(d.blescan!==undefined){bleShfaqListen(d.blescan,d.bsf,d.bst);return}
+
+  /* gjendja e BLE-se nga ESP32 */
+  if(d.ble!==undefined){
+   bleOn=d.ble===1;
+   mirror("blegjendje",bleOn?"AKTIVE":"JOAKTIVE",bleOn?"green":"gray");
+   mirror("blebtn",bleOn?"ÇAKTIVIZO HAPJEN":"AKTIVIZO HAPJEN");
+  }
+  if(d.bpr!==undefined){blePragRuajtur=Number(d.bpr);mirror("blepragu",d.bpr+" dBm")}
+  if(d.bmin!==undefined)mirror("blemin",d.bmin+" min");
+  if(d.bkyc!==undefined){
+   bleKycOn=d.bkyc===1;
+   mirror("blekyc",bleKycOn?"AKTIVE":"JOAKTIVE",bleKycOn?"green":"gray");
+   mirror("blekycbtn",bleKycOn?"ÇAKTIVIZO KYÇJEN":"AKTIVIZO KYÇJEN");
+  }
+  if(d.bl!==undefined&&Array.isArray(d.bl)){
+   bleSlots=d.bl.map(x=>({m:(x.m||"").toLowerCase(),n:x.n||""}));
+   while(bleSlots.length<4)bleSlots.push({m:"",n:""});
+   bleMacRuajtur=bleSlots[0].m||"";
+   localStorage.setItem("bleSlots",JSON.stringify(bleSlots));
+   bleSyncLista();
+  }
+  if(d.bpl!==undefined)mirror("blepraglarg",d.bpl+" dBm");
+  if(d.bsek!==undefined)mirror("blesek",d.bsek+" s");
+  if(d.brik!==undefined)mirror("blerikyc",d.brik+" s");
+  if(d.bck!==undefined)mirror("bleceles",d.bck===1?"NDEZUR — po pret":"fikur",d.bck===1?"green":"gray");
+  if(d.brs!==undefined){
+   const r=Number(d.brs);
+   if(r<=-127)mirror("blerssi","nuk shihet","gray");
+   else mirror("blerssi",r+" dBm",r>=blePragRuajtur?"green":(r>=blePragRuajtur-15?"orange":"gray"));
+  }
 
   if(d.v!==undefined){
    const e=document.getElementById("val-battery"),txt=Number(d.v).toFixed(2)+"V";
@@ -1533,7 +2152,20 @@ mqttClient.onMessageArrived=msg=>{
 
   /* "d" = alarm dere — trajtohet vetëm nga Telegram, jo në aplikacion */
 
-  if(d.wh!==undefined&&d.wh>0&&userRole==="admin")handleWorkHours(d.wh,d.whid);
+  /* Konsumi i internetit (KB nga ESP32) */
+  if(d.net!==undefined)mirror("netot",formatMB(d.net));
+  if(d.nets!==undefined){
+   const kb=Number(d.nets)||0;
+   mirror("netsot",formatMB(kb), kb>1024?"red":(kb>700?"orange":"green"));
+  }
+  if(d.net!==undefined)zbatoNetMbetur(Number(d.net)||0);
+
+  /* Udhëtimet me datë — secili shkruhet te dita e vet */
+  if(d.whl!==undefined&&Array.isArray(d.whl)&&userRole==="admin"){
+   handleWorkHoursList(d.whl);
+  }
+  /* Fusha e vjetër: përdoret vetëm nëse firmware-i s'dërgon "whl" */
+  else if(d.wh!==undefined&&d.wh>0&&userRole==="admin")handleWorkHours(d.wh,d.whid);
  }catch(e){}
 };
 
@@ -1590,6 +2222,105 @@ function whDayKey(){const n=new Date();return n.getFullYear()+"-"+(n.getMonth()+
    (jo në memorie), kështu mbijeton mbylljen e aplikacionit, rifreskimin e
    faqes dhe funksionon njësoj nga disa telefona njëkohësisht.
    Transaksioni e bën "rezervimin" atomik: dy pajisje nuk shkruajnë dy herë. */
+/* =========================================================================
+   UDHËTIMET ME DATË
+   ESP32-shi ruan çdo udhëtim veç, me datën e vet nga rrjeti. Kështu edhe
+   nëse app-i rri i mbyllur disa ditë, secili shkruhet te dita e duhur.
+   ========================================================================= */
+function handleWorkHoursList(lista){
+ if(!lista||!lista.length)return;
+ /* Mbrojtje nga shkrimi i dyfishtë: çdo udhëtim ka ID unik nga ESP32 */
+ const parë=lista[0];
+ const sid="L"+(parë&&parë.i!==undefined?parë.i:"")+"_"+lista.length;
+ db.ref("statistika/wh_sesioni").transaction(cur=>{
+  cur=cur||{};
+  if(cur.sid===sid)return;            /* tashmë i shkruar */
+  return{sid:sid,ore:lista.reduce((a,b)=>a+(Number(b.h)||0),0),ts:Date.now()};
+ },(err,committed)=>{
+  if(err||!committed)return;
+  let totali=0;
+  lista.forEach(u=>{
+   const o=Number(u.h)||0;
+   if(!(o>0))return;
+   totali+=o;
+   /* Data nga ESP32 si "2026-08-13"; nëse mungon, përdoret sot */
+   let y,m,dd;
+   if(u.d&&/^\d{4}-\d{2}-\d{2}$/.test(u.d)){
+    const p=u.d.split("-");y=+p[0];m=+p[1];dd=+p[2];
+   }else{
+    const n=new Date();y=n.getFullYear();m=n.getMonth()+1;dd=n.getDate();
+   }
+   db.ref(`workHours/${y}/${m}/${dd}`)
+     .transaction(v=>{const b=Number(v);return (isFinite(b)?b:0)+o});
+  });
+  if(totali>0){
+   /* Totali i përgjithshëm rritet një herë */
+   db.ref("statistika/ore_pune").transaction(v=>{
+    if(v===null||typeof v!=="object")v={};
+    const baza=Number(v.ore_totale);
+    v.ore_totale=(isFinite(baza)?baza:0)+totali;
+    if(v.lajmerimi_derguar===undefined)v.lajmerimi_derguar=false;
+    return v;
+   });
+   sendCommand("SAVED_HOURS");
+   showFeedback("🕐 U ruajtën "+lista.length+" udhëtime");
+  }
+ });
+}
+
+/* Cilësimi i paketës + rivendosja e numëruesit */
+function setNetPaketa(){
+ if(!needAdmin())return;
+ const cur=localStorage.getItem("netPaketa")||"365";
+ const v=prompt("Sa MB ka paketa jote vjetore?\n\n"+
+   "Shkruaj vetëm numrin (p.sh. 365).\n\n"+
+   "Për ta RIVENDOSUR numëruesin nga zero (kur rinovohet paketa),\n"+
+   "shkruaj: RESET",cur);
+ if(v===null)return;
+ if(String(v).trim().toUpperCase()==="RESET"){
+  if(!confirm("Të rivendos numëruesin e internetit nga ZERO?\n\n"+
+    "Bëje këtë vetëm kur rinovohet paketa."))return;
+  sendCommand("NET_RESET");
+  localStorage.setItem("netFillim",String(Date.now()));
+  showFeedback("🔄 Numëruesi u rivendos");
+  return;
+ }
+ const n=parseInt(v,10);
+ if(isNaN(n)||n<1||n>100000){alert("Vendos një numër të vlefshëm MB.");return}
+ localStorage.setItem("netPaketa",String(n));
+ if(!localStorage.getItem("netFillim"))
+   localStorage.setItem("netFillim",String(Date.now()));
+ mirror("netpaketa",n+" MB");
+ showFeedback("📶 Paketa: "+n+" MB");
+}
+
+/* Formatim i konsumit: KB -> MB me një presje */
+function formatMB(kb){
+ const n=Number(kb)||0;
+ return n<1024 ? n+" KB" : (n/1024).toFixed(1)+" MB";
+}
+
+/* Sa MB mbeten nga paketa vjetore */
+function zbatoNetMbetur(kb){
+ const paketa=Number(localStorage.getItem("netPaketa")||"365");  /* MB */
+ const perdorur=(Number(kb)||0)/1024;
+ const mbetur=paketa-perdorur;
+ mirror("netmbetur",mbetur.toFixed(1)+" MB",
+        mbetur<30?"red":(mbetur<90?"orange":"green"));
+ mirror("netpaketa",paketa+" MB");
+ /* Sa duhet të shpenzosh në ditë për ta nxjerrë vitin */
+ const fillim=Number(localStorage.getItem("netFillim")||"0");
+ if(fillim>0){
+  const ditë=Math.max(1,Math.floor((Date.now()-fillim)/86400000));
+  const mesatare=perdorur/ditë;
+  mirror("netmesatare",mesatare.toFixed(2)+" MB/ditë",
+         mesatare>1?"orange":"green");
+  const parashikim=mesatare*365;
+  mirror("netparashikim",parashikim.toFixed(0)+" MB/vit",
+         parashikim>paketa?"red":"green");
+ }
+}
+
 function handleWorkHours(x,id){
  x=Number(x)||0;
  if(!(x>0))return;
@@ -2269,6 +3000,16 @@ function syncViewport(){resetScroll()}   /* ruhet emri për thirrjet ekzistuese 
 
 window.addEventListener("load",()=>{
  syncTheme();syncHaptics();syncKohet();syncMenyraMT();buildHistSelectors();
+ try{const sl=JSON.parse(localStorage.getItem("bleSlots")||"null");
+     if(Array.isArray(sl)&&sl.length)bleSlots=sl;}catch(e){}
+ while(bleSlots.length<4)bleSlots.push({m:"",n:""});
+ bleMacRuajtur=bleSlots[0].m||"";
+ bleSyncLista();
+ blePragRuajtur=parseInt(localStorage.getItem("blePrag")||"-60",10);
+ mirror("blemin",(localStorage.getItem("bleMin")||"5")+" min");
+ mirror("blepraglarg",(localStorage.getItem("blePragLarg")||"-80")+" dBm");
+ mirror("blesek",(localStorage.getItem("bleSek")||"20")+" s");
+ syncBle();
  resetScroll();
  if(sessionStorage.getItem("isAuth"))showApp();
  else document.getElementById("login").classList.add("active");
@@ -2314,11 +3055,44 @@ window.addEventListener("load",()=>{
   })
  };
 
+ /* Theksimi i pjesës së prekur.
+    Më parë ndryshohej vetëm "emissive" (drita që lëshon materiali) — por
+    ngjyra bazë mbetej e bardhë/argjend si makina, dhe ciano mbi të bardhë
+    dilte thuajse e bardhë: mezi dukej.
+    Tani ndryshohet EDHE ngjyra bazë, si te setCarPartState() që duket mirë,
+    plus një pulsim i butë që e bën prekjen të dukshme edhe në diell.   */
  function flashMesh(mesh,duration=400){
   if(!mesh||!mesh.material)return;
   const mats=Array.isArray(mesh.material)?mesh.material:[mesh.material];
-  mats.forEach(m=>{if(m.emissive){if(!m._old)m._old=m.emissive.clone();m.emissive.setHex(0x00d2ff);m.emissiveIntensity=.8}});
-  setTimeout(()=>mats.forEach(m=>{if(m.emissive&&m._old)m.emissive.copy(m._old)}),duration)
+  mats.forEach(m=>{
+   if(!m.emissive)return;
+   /* ruaj gjendjen origjinale vetëm një herë */
+   if(m._fOld===undefined){
+    m._fOld=m.emissive.clone();
+    m._fOldI=m.emissiveIntensity??1;
+    m._fOldC=m.color?m.color.clone():null;
+   }
+   m.emissive.setHex(0x00b4d8);          /* ciano më i ngopur */
+   m.emissiveIntensity=1.1;
+   if(m.color)m.color.setHex(0x0a84ff);  /* blu i fortë — dallon nga bardha */
+  });
+  /* pulsim i lehtë gjatë kohëzgjatjes */
+  const t0=Date.now();
+  const puls=setInterval(()=>{
+   const k=(Date.now()-t0)/duration;
+   if(k>=1){clearInterval(puls);return}
+   const v=0.75+0.45*Math.abs(Math.sin(k*Math.PI*3));
+   mats.forEach(m=>{if(m.emissive)m.emissiveIntensity=v});
+  },60);
+  setTimeout(()=>{
+   clearInterval(puls);
+   mats.forEach(m=>{
+    if(!m.emissive||m._fOld===undefined)return;
+    m.emissive.copy(m._fOld);
+    m.emissiveIntensity=m._fOldI;
+    if(m.color&&m._fOldC)m.color.copy(m._fOldC);
+   });
+  },duration)
  }
  function partName(obj){
   let s="";while(obj&&obj!==scene){s+=" "+(obj.name||"").toLowerCase();obj=obj.parent}
