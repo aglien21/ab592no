@@ -416,6 +416,32 @@ body.guest .gnote{display:block}
   overflow:hidden;overscroll-behavior:none;touch-action:none;user-select:none;-webkit-user-select:none}
 .numpad,.num{touch-action:none}
 .num{-webkit-user-select:none;user-select:none}
+
+/* ============ HYRJA ME EMAIL ============ */
+#toEmail{margin-top:12px;background:none;border:0;color:var(--accent);
+  font-family:inherit;font-size:11px;font-weight:800;letter-spacing:.6px;padding:10px}
+#elogin{position:fixed;inset:0;z-index:201;background:var(--bg);display:none;
+  flex-direction:column;align-items:center;justify-content:center;
+  padding:14px 16px calc(16px + env(safe-area-inset-bottom));overflow-y:auto}
+#elogin.active{display:flex}
+#elogo{width:70px;height:70px;object-fit:contain;margin:0 auto 10px;display:block}
+.eform{width:min(380px,100%);display:flex;flex-direction:column;gap:11px;margin-top:18px}
+.efld label{display:block;font-size:9px;font-weight:800;letter-spacing:.9px;
+  color:var(--accent);margin-bottom:5px}
+.efld input{width:100%;background:var(--panel2);border:1px solid var(--stroke);
+  border-radius:13px;color:var(--text);font-family:inherit;font-size:15px;font-weight:600;
+  padding:14px 13px;appearance:none;-webkit-appearance:none}
+.efld input:focus{outline:none;border-color:var(--accent)}
+.ehint{font-size:9px;font-weight:700;color:var(--sub2);margin-top:5px;line-height:1.35}
+.emsg{font-size:10.5px;font-weight:700;text-align:center;min-height:15px;line-height:1.4}
+.emsg.err{color:var(--danger)} .emsg.ok{color:var(--success)}
+.ebtn{border:1px solid var(--stroke);background:var(--panel2);color:var(--text);
+  border-radius:14px;padding:14px 10px;font-family:inherit;font-size:12px;font-weight:800;
+  letter-spacing:.5px;transition:transform .1s}
+.ebtn.go{background:var(--accent2);border-color:var(--accent2);color:#fff;font-size:13.5px}
+.ebtn.ghost{background:none;border:0;color:var(--sub);font-size:10.5px;padding:9px}
+.ebtn:active{transform:scale(.975)}
+.ebtn[disabled]{opacity:.55}
 #login.active{display:flex}
 .loginhead{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;min-height:0;gap:10px}
 .loginbox{width:min(300px,90vw);text-align:center}
@@ -502,6 +528,41 @@ body.guest .gnote{display:block}
       <button class="num red" type="button">C</button>
       <button class="num" type="button">0</button>
       <button class="num green" type="button">OK</button>
+  </div>
+</div>
+
+<!-- ============ HYRJA ME EMAIL ============ -->
+<div id="elogin" class="active">
+  <div class="loginhead">
+    <img id="elogo" src="logo.png" alt="Logo" onerror="this.style.display='none'">
+    <div class="loginbox">
+      <h1><i>i30</i> DIGITAL REMOTE</h1>
+      <p id="eSub">HYR NË LLOGARINË TËNDE</p>
+    </div>
+  </div>
+
+  <div class="eform">
+    <div class="efld">
+      <label>EMAIL</label>
+      <input id="eMail" type="email" inputmode="email" autocomplete="username"
+             autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="ti@shembull.com">
+    </div>
+    <div class="efld">
+      <label>FJALËKALIMI</label>
+      <input id="ePass" type="password" autocomplete="current-password" placeholder="••••••••">
+    </div>
+
+    <div class="ehint" id="ePinWrap" style="display:none;text-align:center;line-height:1.5">
+      Pas regjistrimit do të marrësh një kod. Dërgoja pronarit që të të japë akses.
+    </div>
+
+    <div id="eMsg" class="emsg"></div>
+
+    <button class="ebtn go" id="eGo" type="button" onclick="emailHyr()">HYR</button>
+    <button class="ebtn" type="button" onclick="ndrysoModin()">
+      <span id="eSwitch">S'KAM LLOGARI — REGJISTROHU</span>
+    </button>
+    <button class="ebtn ghost" type="button" onclick="emailHarruar()">HARROVA FJALËKALIMIN</button>
   </div>
 </div>
 
@@ -1020,21 +1081,65 @@ function whenAuthed(fn){authReady?fn():authWaiters.push(fn)}
 
 let authUser=null, roliNgaLlogaria=null;
 
+/* -------------------------------------------------------------------------
+   HYRJA ME EMAIL — SESION I PËRHERSHËM
+   Firebase e ruan vetë sesionin (LOCAL persistence). Pra hyn një herë me
+   email dhe app-i hapet direkt sa herë, pa PIN — si aplikacionet e tjera.
+   PIN-i mbetet si rrugë e dytë, për ty ose për mysafirët.
+   ------------------------------------------------------------------------- */
+let nisiAnonim=false;
+
+/* Nëse Firebase nuk ngarkohet (pa internet, CDN i bllokuar, ose paraqitje
+   brenda një iframe pa rrjet), i gjithë skripti do të ndalej këtu dhe asnjë
+   buton nuk do të punonte. Me këtë kontroll, ndërfaqja mbetet e përdorshme
+   dhe shfaqet një njoftim i qartë.                                       */
+if(typeof firebase==="undefined"||!firebase.auth){
+ console.warn("Firebase nuk u ngarkua — pa lidhje ose CDN i bllokuar.");
+ window.addEventListener("DOMContentLoaded",()=>{
+  try{showFeedback("⚠️ Pa lidhje me serverin")}catch(e){}
+ });
+}else{
+
 firebase.auth().onAuthStateChanged(u=>{
  authUser=u;
  if(u){
   authReady=true;
   while(authWaiters.length)authWaiters.shift()();
+
+  /* Llogari me email -> hyrje automatike, POR vetëm nëse është në listën
+     e lejuarve. Roli merret gjithmonë nga Firebase, kurrë nga telefoni:
+     ndryshe mjaftonte të redaktoje localStorage për t'u bërë admin.   */
+  if(!u.isAnonymous&&u.email&&sessionStorage.getItem("shfaqur")!=="1"){
+   db.ref("lejuar/"+u.uid).once("value").then(s=>{
+    if(!s.exists())return;                 /* pa miratim -> rri te login-i */
+    const v=s.val()||{};
+    sessionStorage.setItem("isAuth","true");
+    sessionStorage.setItem("role",v.role==="admin"?"admin":"guest");
+    sessionStorage.setItem("userName",v.name||u.email.split("@")[0]);
+    sessionStorage.setItem("shfaqur","1");
+    showApp();
+   }).catch(()=>{});
+  }
+ }else{
+  /* Askush i loguar: nis sesion anonim që PIN-i të vazhdojë të punojë */
+  if(!nisiAnonim){
+   nisiAnonim=true;
+   firebase.auth().signInAnonymously().catch(e=>{
+    console.error("Auth deshtoi:",e.code,e.message);
+    if(e.code==="auth/operation-not-allowed"){
+     alert("Aktivizo 'Anonymous' te Firebase Console:\nAuthentication > Sign-in method > Anonymous > Enable");
+    }else if(e.code==="auth/network-request-failed"){
+     alert("Nuk ka internet. Lidhu dhe provo perseri.");
+    }
+   });
+  }
  }
 });
-firebase.auth().signInAnonymously().catch(e=>{
- console.error("Auth deshtoi:",e.code,e.message);
- if(e.code==="auth/operation-not-allowed"){
-  alert("Aktivizo 'Anonymous' te Firebase Console:\nAuthentication > Sign-in method > Anonymous > Enable");
- }else if(e.code==="auth/network-request-failed"){
-  alert("Nuk ka internet. Lidhu dhe provo perseri.");
- }
-});
+
+/* Sesioni ruhet edhe pas mbylljes së app-it */
+try{firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)}catch(e){}
+
+}   /* fund i kontrollit "a u ngarkua Firebase" */
 
 /* -------------------------------------------------------------------------
    TOPIKËT NUK NDODHEN NË KOD
@@ -1247,6 +1352,162 @@ document.addEventListener("DOMContentLoaded",()=>{
   b.removeAttribute("onclick");
  });
 });
+/* =========================================================================
+   HYRJA / REGJISTRIMI ME EMAIL
+   Rrjedha:
+     REGJISTRIM  -> email + fjalëkalim + PIN-i i adminit (një herë)
+                    PIN-i vërteton se llogaria është e jotja; pa të, kushdo
+                    që gjen adresën do të krijonte llogari.
+     HYRJE       -> vetëm email + fjalëkalim
+   Pas hyrjes, roli ruhet lokalisht dhe app-i hapet direkt herët e tjera.
+   ========================================================================= */
+let eModRegjistrim=false;
+
+function shfaqEmail(){
+ document.getElementById("login").classList.remove("active");
+ document.getElementById("elogin").classList.add("active");
+ eMsgTrego("");
+}
+function shfaqPin(){
+ document.getElementById("elogin").classList.remove("active");
+ document.getElementById("login").classList.add("active");
+}
+function eMsgTrego(t,lloj){
+ const m=document.getElementById("eMsg");
+ m.textContent=t||"";
+ m.className="emsg"+(lloj?" "+lloj:"");
+}
+function ndrysoModin(){
+ eModRegjistrim=!eModRegjistrim;
+ document.getElementById("eSub").textContent=
+   eModRegjistrim?"KRIJO LLOGARI TË RE":"HYR NË LLOGARINË TËNDE";
+ document.getElementById("eGo").textContent=eModRegjistrim?"REGJISTROHU":"HYR";
+ document.getElementById("eSwitch").textContent=
+   eModRegjistrim?"KAM LLOGARI — HYR":"S'KAM LLOGARI — REGJISTROHU";
+ document.getElementById("ePinWrap").style.display=eModRegjistrim?"":"none";
+ document.getElementById("ePass").setAttribute("autocomplete",
+   eModRegjistrim?"new-password":"current-password");
+ eMsgTrego("");
+}
+
+/* Përkthen kodet e Firebase në shqip */
+function eGabim(c){
+ const t={
+  "auth/invalid-email":"Email-i nuk është i vlefshëm.",
+  "auth/user-not-found":"Nuk ka llogari me këtë email.",
+  "auth/wrong-password":"Fjalëkalimi është i gabuar.",
+  "auth/invalid-credential":"Email-i ose fjalëkalimi është i gabuar.",
+  "auth/email-already-in-use":"Ky email ka tashmë llogari — shtyp HYR.",
+  "auth/weak-password":"Fjalëkalimi duhet të ketë të paktën 6 shkronja.",
+  "auth/network-request-failed":"Nuk ka internet.",
+  "auth/too-many-requests":"Shumë prova. Prit pak dhe riprovo.",
+  "auth/operation-not-allowed":"Aktivizo Email/Password te Firebase Console."
+ };
+ return t[c]||("Gabim: "+c);
+}
+
+function emailHyr(){
+ const mail=(document.getElementById("eMail").value||"").trim();
+ const pass=document.getElementById("ePass").value||"";
+ if(!mail||!pass){eMsgTrego("Plotëso email-in dhe fjalëkalimin.","err");return}
+ if(pass.length<6){eMsgTrego("Fjalëkalimi: të paktën 6 shkronja.","err");return}
+
+ const btn=document.getElementById("eGo");
+ btn.disabled=true;
+ eMsgTrego(eModRegjistrim?"Duke krijuar llogarinë...":"Duke hyrë...");
+
+ const perfundo=(cred,role,name)=>{
+  const u=cred.user;
+  /* Roli NUK ruhet ne telefon: lexohet gjithmone nga "lejuar/<uid>".
+     Perndryshe mjaftonte te redaktoje localStorage per t'u bere admin. */
+  sessionStorage.setItem("isAuth","true");
+  sessionStorage.setItem("role",role);
+  sessionStorage.setItem("userName",name);
+  sessionStorage.setItem("shfaqur","1");
+  document.getElementById("elogin").classList.remove("active");
+  btn.disabled=false;
+  showApp();
+ };
+
+ if(eModRegjistrim){
+  /* REGJISTRIMI NUK JEP AKSES.
+     Krijimi i llogarisë është i lirë te Firebase — kushdo me një email mund
+     ta bëjë, dhe kjo NUK mund të ndalohet nga ana e app-it. Prandaj mbrojtja
+     nuk qëndron te regjistrimi, por te LISTA E LEJUARVE ("lejuar/<uid>") që
+     e kontrollon vetëm pronari nga Firebase Console.
+     Pa atë hyrje, llogaria e re nuk lexon dot asgjë: as topikët, as PIN-in,
+     as të dhënat. Sheh vetëm një ekran që i thotë kodin e vet.          */
+  firebase.auth().createUserWithEmailAndPassword(mail,pass).then(cred=>{
+   const u=cred.user;
+   /* Shkruaj kërkesën; nëse rregullat e bllokojnë, s'ka rëndësi */
+   db.ref("emailUsers/"+u.uid).set({
+    email:mail,krijuar:Date.now()
+   }).catch(()=>{});
+   btn.disabled=false;
+   trogoKodin(u.uid,mail);
+  }).catch(e=>{
+   btn.disabled=false;
+   eMsgTrego(eGabim(e&&e.code),"err");
+  });
+  return;
+ }
+
+ /* HYRJE normale.
+    Roli merret nga "lejuar/<uid>" — nyje që e shkruan VETËM pronari nga
+    Firebase Console. Nëse llogaria nuk është aty, hyrja nuk lejohet dhe
+    përdoruesit i tregohet kodi i tij, që t'ia dërgojë pronarit.        */
+ firebase.auth().signInWithEmailAndPassword(mail,pass).then(cred=>{
+  const u=cred.user;
+  db.ref("lejuar/"+u.uid).once("value").then(s=>{
+   if(!s.exists()){ btn.disabled=false; trogoKodin(u.uid,mail); return }
+   const v=s.val()||{};
+   const role=(v.role==="admin")?"admin":"guest";
+   const name=v.name||mail.split("@")[0];
+   perfundo(cred,role,name);
+  }).catch(()=>{
+   /* Leximi u refuzua => nuk është në listë */
+   btn.disabled=false; trogoKodin(u.uid,mail);
+  });
+ }).catch(e=>{
+  btn.disabled=false;
+  eMsgTrego(eGabim(e&&e.code),"err");
+ });
+}
+
+/* Ekrani "prit miratimin" — tregon kodin unik të llogarisë */
+function trogoKodin(uid,mail){
+ document.getElementById("eSub").textContent="LLOGARIA PRET MIRATIM";
+ document.querySelector(".eform").innerHTML=
+  '<div class="ehint" style="font-size:11px;line-height:1.6;text-align:center;margin-bottom:4px">'+
+  'Llogaria u krijua, por <b>nuk ka akses</b>.<br>'+
+  'Dërgoja pronarit kodin e mëposhtëm.</div>'+
+  '<div class="efld"><label>EMAIL</label>'+
+  '<input type="text" value="'+esc(mail)+'" readonly></div>'+
+  '<div class="efld"><label>KODI YT (UID)</label>'+
+  '<input id="uidBox" type="text" value="'+esc(uid)+'" readonly '+
+  'style="font-size:11px;font-family:ui-monospace,monospace"></div>'+
+  '<button class="ebtn go" type="button" onclick="kopjoUid()">KOPJO KODIN</button>'+
+  '<button class="ebtn" type="button" onclick="location.reload()">MBYLL</button>';
+}
+function kopjoUid(){
+ const b=document.getElementById("uidBox");
+ try{
+  b.select(); b.setSelectionRange(0,99999);
+  navigator.clipboard.writeText(b.value).then(
+   ()=>showFeedback("✅ Kodi u kopjua"),
+   ()=>{document.execCommand("copy");showFeedback("✅ Kodi u kopjua")}
+  );
+ }catch(e){showFeedback("Zgjidhe kodin dhe kopjoje")}
+}
+
+function emailHarruar(){
+ const mail=(document.getElementById("eMail").value||"").trim();
+ if(!mail){eMsgTrego("Shkruaj email-in më lart, pastaj shtyp këtu.","err");return}
+ firebase.auth().sendPasswordResetEmail(mail)
+  .then(()=>eMsgTrego("U dërgua një email për rivendosjen ✓","ok"))
+  .catch(e=>eMsgTrego(eGabim(e&&e.code),"err"));
+}
+
 function checkLogin(){
  if(!pinEntry)return;
  /* pa autentikim, cdo lexim kthen "Permission denied" */
@@ -1299,6 +1560,8 @@ function renderGreeting(){
 }
 function showApp(){
  document.getElementById("login").classList.remove("active");
+ const el=document.getElementById("elogin");
+ if(el)el.classList.remove("active");
  userRole=sessionStorage.getItem("role")||"guest";
  mirror("role",userRole.toUpperCase());
  const dr=document.getElementById("d-role");if(dr)dr.textContent=userRole.toUpperCase();
@@ -1415,7 +1678,35 @@ function loadTopics(){
     :"⚠️ S'u lexuan cilësimet MQTT");
  });
 }
-function logout(){sessionStorage.clear();location.reload()}
+/* Dalja: pastron sesionin DHE llogarinë e email-it. Pa daljen nga Firebase,
+   hyrja automatike do ta rihapte app-in menjëherë pas rifreskimit.
+
+   MBROJTJE: nëse Firebase nuk është ngarkuar (pa internet, CDN i bllokuar,
+   ose paraqitja brenda një iframe pa rrjet), dalja duhet të punojë gjithsesi.
+   Pa këtë, thirrja e parë te "firebase" ndërpriste gjithë funksionin dhe
+   butoni DIL nuk bënte asgjë.                                            */
+function logout(){
+ const fbGati = (typeof firebase!=="undefined" && firebase.auth);
+ let u=null;
+ if(fbGati){ try{ u=firebase.auth().currentUser }catch(e){} }
+
+ if(u&&!u.isAnonymous){
+  if(!confirm("Të dalësh nga llogaria?\n\nHerën tjetër do të duhet email-i dhe fjalëkalimi."))return;
+  try{localStorage.removeItem("acc_"+u.uid)}catch(e){}
+  sessionStorage.clear();
+  try{
+   firebase.auth().signOut().finally(()=>location.reload());
+   /* Nëse signOut ngec (pa rrjet), rifresko gjithsesi pas 2 sekondash */
+   setTimeout(()=>location.reload(),2000);
+  }catch(e){location.reload()}
+  return;
+ }
+
+ /* Sesion me PIN, anonim, ose Firebase i pandodhur */
+ try{sessionStorage.clear()}catch(e){}
+ if(fbGati){ try{firebase.auth().signOut()}catch(e){} }
+ location.reload();
+}
 
 /* =========================================================================
    3) TEMA / NAVIGIM
@@ -3204,5 +3495,5 @@ window.addEventListener("load",()=>{
  init();
 })();
 </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a321ce312e4fed8e',t:'MTc4NzkwNDI2OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
