@@ -517,6 +517,8 @@ body.guest .gnote{display:block}
     <div class="loginbox">
       <h1><i>i30</i> DIGITAL REMOTE</h1>
       <p id="eSub">HYR NË LLOGARINË TËNDE</p>
+      <p id="eSub">⬇️</p>
+      <p id="eSub">Created By AGLIEN</p>
     </div>
   </div>
 
@@ -528,7 +530,7 @@ body.guest .gnote{display:block}
     </div>
     <div class="efld">
       <label>FJALËKALIMI</label>
-      <input id="ePass" type="password" autocomplete="current-password" placeholder="••••••••">
+      <input id="ePass" type="password" autocomplete="current-password" placeholder="Passwordi yt">
     </div>
 
     <div class="ehint" id="ePinWrap" style="display:none;text-align:center;line-height:1.5">
@@ -617,7 +619,7 @@ body.guest .gnote{display:block}
     <div class="grid2">
       <div class="card">
         <div class="title">TELEMETRIA</div>
-        <div class="row"><span>MOTORI</span><b id="val-engine" class="green">OFF</b></div>
+        <div class="row"><span>MOTORI</span><b id="val-engine" class="green">FIKUR</b></div>
         <div class="row"><span>DYERT</span><b id="val-locks" class="green">TË MBYLLURA</b></div>
         <div class="row"><span>ÇELËSI SERVISIT</span><b id="val-key" class="gray">JO AKTIV</b></div>
         <div class="row"><span>ORË SOT</span><b data-m="today" class="accent">0h 0m</b></div>
@@ -673,11 +675,11 @@ body.guest .gnote{display:block}
         <svg class="ico-lg" viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4.4 3 7.9 7 9 4-1.1 7-4.6 7-9V6z"/><path d="M9.2 12.2 11 14l3.8-4"/></svg>
         <span class="lbl">MBYLLJE TOTALE</span></button>
 
-      <button id="btn-windows" class="btn bblue" onclick="sendCommand('WINDOWS')">
+      <button id="btn-windows" class="btn bblue" onclick="xhamatSiguri()">
         <svg class="ico-lg" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="9" rx="2.5"/><path d="M3 13.5h18"/><path d="M6.5 9 8 6h8l1.5 3"/></svg>
         <span class="lbl">XHAMAT</span></button>
 
-      <button id="btn-sunroof" class="btn borange" onclick="sendCommand('SUNROOF')">
+      <button id="btn-sunroof" class="btn borange" onclick="tavaniSiguri()">
         <svg class="ico-lg" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="2.5"/><rect x="6" y="10" width="12" height="4" rx="1.4"/></svg>
         <span class="lbl">TAVANI</span></button>
 
@@ -735,7 +737,7 @@ body.guest .gnote{display:block}
         <div class="title">GJENDJA E AUTOMJETIT</div>
         <div class="row"><span>KILOMETRAZHI AKTUAL</span><b data-m="km">-- km</b></div>
         <div class="row"><span>ÇELËSI I SERVISIT</span><b data-m="key">JO AKTIV</b></div>
-        <div class="row"><span>MOTORI</span><b data-m="engine">OFF</b></div>
+        <div class="row"><span>MOTORI</span><b data-m="engine">FIKUR</b></div>
         <div class="row"><span>TENSIONI</span><b data-m="battery">--.-V</b></div>
       </div>
 
@@ -1743,6 +1745,27 @@ async function mbylljeHapPasHapi(){
  }
 }
 
+/* =========================================================================
+   SIGURIA E XHAMAVE DHE TAVANIT
+   Të njëjtin konfirmim si MBYLLJA TOTALE. Arsyeja është fizike:
+   këto dy komanda lëvizin motorë realë. Nëse dikush ka dorën te xhami,
+   ose ka diçka mbi tavan, një prekje e rastësishme në xhep bën dëm.
+   Nuk ndryshon ASGJË te komandat — vetëm shtohet pyetja para dërgimit.
+   ========================================================================= */
+function xhamatSiguri(){
+ const t=parseInt(localStorage.getItem("tXhamat")||"6000",10);
+ if(!confirm("A je i sigurt që do të mbyllësh XHAMAT?\n\n"+
+   "Motorët do të punojnë "+(t/1000).toFixed(1)+" sekonda.\n"+
+   "Sigurohu që askush nuk ka duart te xhamat."))return;
+ sendCommand("WINDOWS");
+}
+
+function tavaniSiguri(){
+ if(!confirm("A je i sigurt që do të lëvizësh TAVANIN?\n\n"+
+   "Sigurohu që nuk ka gjë mbi tavan dhe askush nuk ka duart aty."))return;
+ sendCommand("SUNROOF");
+}
+
 function toggleMenyraMT(){
  const v=localStorage.getItem("mtHapPasHapi")==="1"?"0":"1";
  localStorage.setItem("mtHapPasHapi",v);
@@ -2522,11 +2545,11 @@ mqttClient.onMessageArrived=msg=>{
    mirror("battery",txt,Number(d.v)>12?"green":"red");
   }
 
-  /* MOTORI: OFF = JESHIL • NDEZUR = KUQ */
+  /* MOTORI: FIKUR = JESHIL • NDEZUR = KUQ */
   if(d.e!==undefined){
    isEngineRunning=d.e===1;
    const e=document.getElementById("val-engine"),i=document.getElementById("icon-engine"),l=document.getElementById("lbl-engine");
-   e.textContent=isEngineRunning?"NDEZUR":"OFF";
+   e.textContent=isEngineRunning?"NDEZUR":"FIKUR";
    e.className=isEngineRunning?"red":"green";
    i.innerHTML=isEngineRunning?ICON.stop:ICON.power;
    l.textContent=isEngineRunning?"FIK MOTORRIN":"NDIZ MOTORRIN";
@@ -3496,6 +3519,8 @@ window.addEventListener("load",()=>{
    else{sendCommand("TRIP_MODE");showFeedback("🚀 Trip Mode u aktivizua!")}
   }else if(part==="sunroof"){
    if(userRole==="guest"){showFeedback("⛔ Nuk keni akses për tavanin");return}
+   if(!confirm("A je i sigurt që do të lëvizësh TAVANIN?\n\n"+
+     "Sigurohu që nuk ka gjë mbi tavan dhe askush nuk ka duart aty."))return;
    flashMesh(mesh,8000);sendCommand("SUNROOF");showFeedback("🪟 Duke lëvizur tavanin...")
   }else if(part==="windows"){showFeedback("ℹ️ Përdor butonin XHAMAT në ekran")}
  }
@@ -3587,5 +3612,5 @@ window.addEventListener("load",()=>{
  init();
 })();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a325f676affdee5c',t:'MTc4Nzk0Nzg2MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3263246481cedd4',t:'MTc4Nzk1MDMxMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
