@@ -198,6 +198,28 @@ body.light .viewer{background:radial-gradient(ellipse at 50% 62%,rgba(10,132,255
   padding:8px 11px;font-size:10px;font-weight:800}
 .brow.free .bn{background:rgba(255,255,255,.06);color:var(--sub2)}
 .brow.free .bt{color:var(--sub2);font-weight:700}
+/* ---- MODALI I PERDORUESVE (ripërdor stilet .brow) ---- */
+#uScrim{position:fixed;inset:0;z-index:161;background:rgba(0,0,0,.66);backdrop-filter:blur(3px);
+  display:none;align-items:flex-end;justify-content:center}
+#uScrim.on{display:flex}
+#uModal{width:min(520px,100%);max-height:88vh;overflow-y:auto;background:var(--panel);
+  border:1px solid var(--stroke);border-radius:22px 22px 0 0;
+  padding:16px 16px calc(16px + env(safe-area-inset-bottom));
+  animation:mup .26s cubic-bezier(.3,.85,.35,1)}
+#uModal h4{margin:0 0 3px;font-size:15px;font-weight:800;letter-spacing:.4px}
+#uModal .msub{font-size:9.5px;font-weight:700;color:var(--sub2);letter-spacing:.4px;margin-bottom:13px}
+.usec{font-size:9px;font-weight:800;color:var(--sub2);letter-spacing:.6px;
+  margin:14px 0 7px;padding-left:2px}
+.usec:first-child{margin-top:0}
+.brow .bx.ok{background:rgba(48,209,88,.16);color:var(--success)}
+.brow .bx.warn{background:rgba(255,159,10,.16);color:var(--orange)}
+.brow.blk{opacity:.55}
+.brow.blk .bt{text-decoration:line-through}
+.utag{flex:none;font-size:8.5px;font-weight:800;padding:3px 7px;border-radius:7px;letter-spacing:.3px}
+.utag.adm{background:rgba(34,198,255,.16);color:var(--accent)}
+.utag.gst{background:rgba(255,255,255,.07);color:var(--sub2)}
+.utag.blo{background:rgba(255,59,48,.16);color:var(--danger)}
+.uempty{text-align:center;padding:18px 10px;color:var(--sub2);font-size:10.5px;font-weight:700}
 .bsig{flex:none;font-size:10px;font-weight:800;padding:4px 8px;border-radius:8px;background:rgba(255,255,255,.06)}
 .bsig.s3{background:rgba(48,209,88,.16);color:var(--success)}
 .bsig.s2{background:rgba(255,159,10,.16);color:var(--orange)}
@@ -215,12 +237,8 @@ body.light .viewer{background:radial-gradient(ellipse at 50% 62%,rgba(10,132,255
              background-color .13s ease,
              border-color .13s ease,
              filter .13s ease}
-/* numpad-i: vetëm ngjyrë, pa transform — asgjë që të lëvizë zonën e prekjes */
-.num{transition:background-color .1s ease,border-color .1s ease,color .1s ease}
 
 .btn.press{transform:scale(.955);filter:brightness(1.32);border-color:rgba(255,255,255,.20)}
-/* numpad: pa scale — vetëm ndryshim ngjyre, që zonat e prekjes të mos lëvizin */
-.num.press{background:var(--accent2);border-color:var(--accent2);color:#fff}
 .mini.press{transform:scale(.87);filter:brightness(1.45);border-color:currentColor}
 .iconbtn.press{transform:scale(.9);filter:brightness(1.4);border-color:var(--accent)}
 .ditem.press{transform:scale(.975);filter:brightness(1.35)}
@@ -252,16 +270,15 @@ body.light .viewer{background:radial-gradient(ellipse at 50% 62%,rgba(10,132,255
   100%{filter:brightness(1)}
 }
 .btn,.mini,.iconbtn,.ditem,.mbtn,.nav,.tab{position:relative;overflow:hidden}
-/* numpad-i mbetet plotësisht statik: pa position/overflow, pa valë drite */
 /* butonat me menu rrëshqitëse nuk duhet ta presin përmbajtjen */
 .themepill{position:relative}
 
 @media(prefers-reduced-motion:reduce){
-  .btn,.num,.mini,.iconbtn,.ditem,.mbtn,.nav,.tab{transition:none}
+  .btn,.mini,.iconbtn,.ditem,.mbtn,.nav,.tab{transition:none}
   .rp{display:none}
 }
-/* asnjë animacion/valë brenda faqes së login-it */
-#login .rp{display:none}
+/* asnjë animacion/valë brenda faqes së hyrjes */
+#elogin .rp{display:none}
 
 /* ============ ALARMI I SERVISIT (orët totale) ============ */
 @keyframes pulsServis{
@@ -410,20 +427,33 @@ body.guest .gnote{display:block}
 /* ============ LOGIN ============ */
 /* inset:0 mbi një trup të fiksuar = gjithmonë saktësisht sa ekrani,
    pa u mbështetur te 100vh apo te matje me JavaScript */
-#login{position:fixed;inset:0;z-index:200;background:var(--bg);display:none;
-  flex-direction:column;align-items:center;justify-content:flex-end;
-  padding:14px 14px calc(16px + env(safe-area-inset-bottom));
-  overflow:hidden;overscroll-behavior:none;touch-action:none;user-select:none;-webkit-user-select:none}
-.numpad,.num{touch-action:none}
-.num{-webkit-user-select:none;user-select:none}
 
 /* ============ HYRJA ME EMAIL ============ */
 #toEmail{margin-top:12px;background:none;border:0;color:var(--accent);
   font-family:inherit;font-size:11px;font-weight:800;letter-spacing:.6px;padding:10px}
-#elogin{position:fixed;inset:0;z-index:201;background:var(--bg);display:none;
+/* Lartësia ndiqet nga visualViewport-i (--vvh). Në iOS standalone, kur hapet
+   tastiera, viewport-i i paraqitjes NUK zvogëlohet: pa këtë, fushat mbeten
+   të centruara në ekranin e plotë, pra fshihen POSHTË tastierës.
+   Me --vvh, ekrani i hyrjes zvogëlohet sa pjesa e dukshme dhe fushat rrinë
+   gjithmonë sipër saj.                                                     */
+#elogin{position:fixed;top:0;left:0;right:0;z-index:201;background:var(--bg);display:none;
+  height:var(--vvh,100%);
   flex-direction:column;align-items:center;justify-content:center;
-  padding:14px 16px calc(16px + env(safe-area-inset-bottom));overflow-y:auto}
+  padding:14px 16px calc(16px + env(safe-area-inset-bottom));
+  overflow-y:auto;-webkit-overflow-scrolling:touch}
 #elogin.active{display:flex}
+/* Me tastierën hapur: pa centrim (do e shtynte përmbajtjen jashtë) dhe
+   koka zvogëlohet, që fushat të mbeten të dukshme edhe në ekrane të vegjël. */
+#elogin.kb{justify-content:flex-start;padding-top:6px}
+#elogin.kb .loginhead{flex:none;gap:3px}
+#elogin.kb #elogo{width:34px;height:34px;margin-bottom:0}
+#elogin.kb .loginbox h1{font-size:14px;margin-bottom:1px}
+#elogin.kb .loginbox p{font-size:8px}
+#elogin.kb .eform{margin-top:8px;gap:8px}
+#elogin.kb .efld input{padding:11px 12px;font-size:15px}  /* 15px: nën këtë iOS zmadhon vetë */
+#elogin.kb .ebtn{padding:11px 10px}
+#elogin.kb .ebtn.ghost{padding:6px}
+#elogin.kb .emsg{min-height:0}
 #elogo{width:70px;height:70px;object-fit:contain;margin:0 auto 10px;display:block}
 .eform{width:min(380px,100%);display:flex;flex-direction:column;gap:11px;margin-top:18px}
 .efld label{display:block;font-size:9px;font-weight:800;letter-spacing:.9px;
@@ -442,7 +472,6 @@ body.guest .gnote{display:block}
 .ebtn.ghost{background:none;border:0;color:var(--sub);font-size:10.5px;padding:9px}
 .ebtn:active{transform:scale(.975)}
 .ebtn[disabled]{opacity:.55}
-#login.active{display:flex}
 .loginhead{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;min-height:0;gap:10px}
 .loginbox{width:min(300px,90vw);text-align:center}
 /* ---- LOGO ---- */
@@ -456,26 +485,7 @@ body.guest .gnote{display:block}
 .loginbox h1{font-size:clamp(17px,5vw,21px);font-weight:800;font-style:italic;margin:0 0 3px}
 .loginbox h1 i{color:var(--accent);font-style:italic}
 .loginbox p{font-size:9px;font-weight:700;letter-spacing:1.2px;color:var(--sub2);margin:0}
-#pin{width:min(300px,90vw);height:46px;background:var(--panel);
-  border:1px solid var(--stroke);border-radius:14px;margin:0 0 10px;
-  display:flex;align-items:center;justify-content:center;gap:16px}
-#pin i{width:11px;height:11px;border-radius:50%;background:var(--sub2);opacity:.4;transition:.16s}
-#pin i.on{background:var(--text);opacity:1;transform:scale(1.18)}
-#pin.bad{animation:shake .4s}
-#pin.bad i{background:var(--danger);opacity:1}
-@keyframes shake{10%,90%{transform:translateX(-4px)}30%,70%{transform:translateX(6px)}50%{transform:translateX(-6px)}}
-.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:min(300px,90vw);
-  flex:none;transform:none!important}
-.num{height:clamp(48px,7.6vh,58px);border-radius:15px;border:1px solid var(--stroke);
-  background:var(--panel);color:var(--text);font-size:clamp(20px,4.8vw,23px);font-weight:700;
-  transform:none!important;position:static;overflow:visible;
-  display:flex;align-items:center;justify-content:center;padding:0;margin:0}
-.num:active{background:var(--panel2)}
-.num.red{color:var(--danger)}.num.green{color:var(--success)}
 @media(max-height:660px){
-  .num{height:clamp(42px,6.6vh,50px);font-size:19px;border-radius:13px}
-  #pin{height:42px;font-size:20px;margin-bottom:8px;letter-spacing:11px}
-  .numpad{gap:7px}
   .logoRing{width:56px;height:56px}
   .logoRing span{font-size:20px}
   #logoImg{max-height:15vh}
@@ -496,40 +506,9 @@ body.guest .gnote{display:block}
 
 <body>
 
-<!-- ============ LOGIN (PIN) ============ -->
-<div id="login">
-  <div class="loginhead">
-    <!-- LOGO: vendos logo.png pranë index.html dhe shfaqet automatikisht -->
-    <img id="logoImg" src="logo.png" alt="Logo"
-         onload="this.style.display='block';document.getElementById('logoFallback').style.display='none'"
-         onerror="this.style.display='none'">
-    <div id="logoFallback">
-      <div class="logoRing"><span>i30</span></div>
-    </div>
-    <div class="loginbox">
-      <h1><i>i30</i> DIGITAL REMOTE</h1>
-      <p>VENDOS KODIN PIN</p>
-    </div>
-  </div>
-  <!-- Pa fushe teksti: ndalon AutoFill-in e iOS qe zhvendoste faqen -->
-  <div id="pin" role="status" aria-label="Kodi PIN">
-    <i></i><i></i><i></i><i></i>
-  </div>
-  <div class="numpad">
-      <button class="num" type="button">1</button>
-      <button class="num" type="button">2</button>
-      <button class="num" type="button">3</button>
-      <button class="num" type="button">4</button>
-      <button class="num" type="button">5</button>
-      <button class="num" type="button">6</button>
-      <button class="num" type="button">7</button>
-      <button class="num" type="button">8</button>
-      <button class="num" type="button">9</button>
-      <button class="num red" type="button">C</button>
-      <button class="num" type="button">0</button>
-      <button class="num green" type="button">OK</button>
-  </div>
-</div>
+<!-- Ekrani i vjetër me PIN u hoq më 28.08.2026.
+     Hyrja bëhet vetëm me email + fjalëkalim; rolet menaxhohen te
+     CILËSIMET -> PËRDORUESIT (nyja "lejuar/" në Firebase). -->
 
 <!-- ============ HYRJA ME EMAIL ============ -->
 <div id="elogin" class="active">
@@ -815,25 +794,21 @@ body.guest .gnote{display:block}
     <div class="pane" id="pane-guest">
       <div class="card">
         <div class="title">PËRDORUESIT</div>
-        <div class="row"><span>ADMINË</span><b id="aCount">0</b></div>
-        <div class="row"><span>GUEST</span><b id="gCount">0</b></div>
+        <div class="row"><span>TË MIRATUAR</span><b data-m="usrnum">—</b></div>
+        <div class="row"><span>KËRKESA TË REJA</span><b class="orange" data-m="usrpret">—</b></div>
         <div class="row"><span>AKSESI YT</span><b data-m="role">--</b></div>
       </div>
-
-      <div class="card" style="padding:9px 11px 4px"><div class="title">ADMINËT</div></div>
-      <div id="aList"><div class="empty">Duke ngarkuar adminët...</div></div>
-      <button class="btn wide auto bpurple" onclick="addAdmin()">
-        <svg class="ico" viewBox="0 0 24 24"><path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
-        <span class="lbl">SHTO ADMIN TË RI</span></button>
-
-      <div class="card" style="padding:9px 11px 4px"><div class="title">GUEST</div></div>
-      <div id="gList"><div class="empty">Duke ngarkuar përdoruesit...</div></div>
-      <button class="btn wide auto bgreen" onclick="addGuest()">
-        <svg class="ico" viewBox="0 0 24 24"><path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
-        <span class="lbl">SHTO PËRDORUES GUEST</span></button>
-      <button class="btn wide auto bblue" onclick="changeAdminPin()">
-        <svg class="ico" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-        <span class="lbl">NDRYSHO PIN-IN KRYESOR</span></button>
+      <div class="rowbtns">
+        <button class="btn wide auto bblue" onclick="usrLista()">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span class="lbl">MENAXHO PËRDORUESIT</span></button>
+      </div>
+      <div class="card">
+        <div class="ehint" style="text-align:center;line-height:1.6;font-size:10px">
+          Hyrja bëhet me <b>email dhe fjalëkalim</b>.<br>
+          Kush regjistrohet shfaqet te <b>KËRKESA TË REJA</b> — aprovoje me një prekje.
+        </div>
+      </div>
     </div>
 
     <!-- ---- HISTORIKU ---- -->
@@ -925,6 +900,17 @@ body.guest .gnote{display:block}
       <button class="btn wide auto bblue" onclick="setNetPaketa()">
         <svg class="ico" viewBox="0 0 24 24"><path d="M12 20h.01"/><path d="M2 8.8a15 15 0 0 1 20 0"/><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/></svg>
         <span class="lbl">PAKETA / RIVENDOS</span></button>
+    </div>
+
+    <div class="card">
+      <div class="title">PËRDORUESIT</div>
+      <div class="row"><span>TË MIRATUAR</span><b data-m="usrnum">—</b></div>
+      <div class="row"><span>KËRKESA TË REJA</span><b class="orange" data-m="usrpret">—</b></div>
+    </div>
+    <div class="rowbtns">
+      <button class="btn wide auto bblue" onclick="usrLista()">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span class="lbl">MENAXHO PËRDORUESIT</span></button>
     </div>
 
     <div class="card">
@@ -1037,6 +1023,19 @@ body.guest .gnote{display:block}
   </div>
 </div>
 
+<!-- ============ MODAL: PERDORUESIT ============ -->
+<div id="uScrim" onclick="if(event.target===this)uClose()">
+  <div id="uModal">
+    <h4 id="uTitle">PËRDORUESIT</h4>
+    <div class="msub" id="uSub">Kush ka akses te makina</div>
+    <div id="uBody"></div>
+    <div class="mact" id="uAct">
+      <button class="mbtn" onclick="uClose()">MBYLL</button>
+      <button class="mbtn go" id="uGo" onclick="usrShtoManual()">SHTO ME KOD</button>
+    </div>
+  </div>
+</div>
+
 <nav id="nav">
   <button class="nav active" data-v="kontrolli" onclick="go('kontrolli')">
     <svg class="ico" viewBox="0 0 24 24"><path d="M18 11V6.5a1.5 1.5 0 0 0-3 0V11"/><path d="M15 10.5V4.5a1.5 1.5 0 0 0-3 0V11"/><path d="M12 10.5v-5a1.5 1.5 0 0 0-3 0V13"/><path d="M9 12.5V9a1.5 1.5 0 1 0-3 0v7c0 3.3 2.7 6 6 6h1.5a6 6 0 0 0 6-6v-5"/></svg>
@@ -1070,10 +1069,9 @@ if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 
 /* -------------------------------------------------------------------------
-   FIREBASE AUTH (anonim)
-   Rregullat e bazes kerkojne "auth != null". Hyrja anonime i jep aplikacionit
-   nje identitet te vlefshem pa kerkuar email — PIN-i mbetet mbrojtja per rolet.
-   Aktivizoje: Firebase Console > Authentication > Sign-in method > Anonymous
+   FIREBASE AUTH
+   Rregullat e bazes kerkojne "auth != null" DHE praninë te "lejuar/<uid>".
+   Hyrja anonime u hoq — identiteti vjen vetem nga email + fjalekalim.
    ------------------------------------------------------------------------- */
 let authReady=false;
 const authWaiters=[];
@@ -1084,8 +1082,8 @@ let authUser=null, roliNgaLlogaria=null;
 /* -------------------------------------------------------------------------
    HYRJA ME EMAIL — SESION I PËRHERSHËM
    Firebase e ruan vetë sesionin (LOCAL persistence). Pra hyn një herë me
-   email dhe app-i hapet direkt sa herë, pa PIN — si aplikacionet e tjera.
-   PIN-i mbetet si rrugë e dytë, për ty ose për mysafirët.
+   email dhe app-i hapet direkt sa herë — si aplikacionet e tjera.
+   Rolet menaxhohen te CILËSIMET -> PËRDORUESIT.
    ------------------------------------------------------------------------- */
 
 /* Nëse Firebase nuk ngarkohet (pa internet, CDN i bllokuar, ose paraqitje
@@ -1112,6 +1110,8 @@ firebase.auth().onAuthStateChanged(u=>{
    db.ref("lejuar/"+u.uid).once("value").then(s=>{
     if(!s.exists())return;                 /* pa miratim -> rri te login-i */
     const v=s.val()||{};
+    /* BLLOKIM I PERKOHSHEM: nyja rri ne liste, por hyrja ndalohet. */
+    if(v.bllokuar===true){ firebase.auth().signOut(); return }
     sessionStorage.setItem("isAuth","true");
     sessionStorage.setItem("role",v.role==="admin"?"admin":"guest");
     sessionStorage.setItem("userName",v.name||u.email.split("@")[0]);
@@ -1122,9 +1122,8 @@ firebase.auth().onAuthStateChanged(u=>{
  }else{
   /* Askush i loguar -> shfaq ekranin e hyrjes me email.
 
-     HYRJA ANONIME U HOQ. Me pare perdorej qe PIN-i te lexonte "adminConfig",
-     por PIN-i nuk ekziston me dhe rregullat e reja nuk i japin asnje akses
-     nje sesioni anonim. Mbajtja e saj vetem shkaktonte:
+     HYRJA ANONIME U HOQ. Rregullat nuk i japin asnje akses nje sesioni
+     anonim. Mbajtja e saj vetem shkaktonte:
        - "auth/operation-not-allowed" pas cdo daljeje (nese Anonymous eshte fikur)
        - nje perdorues fantazme te ri ne Authentication sa here qe dilje     */
   authReady=true;
@@ -1143,9 +1142,9 @@ try{firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)}catch(e
 
 /* -------------------------------------------------------------------------
    TOPIKËT NUK NDODHEN NË KOD
-   Ruhen te Firebase (mqttConfig/) dhe lexohen vetëm PAS hyrjes me PIN.
-   Kush hap skedarin në GitHub ose bën "View Source" nuk sheh asgjë të
-   përdorshme — pa PIN nuk merr dot topikët, pa topikë s'komandon makinën.
+   Ruhen te Firebase (mqttConfig/) dhe lexohen vetëm PAS hyrjes me email
+   dhe vetëm nëse llogaria është te "lejuar/". Kush hap skedarin në GitHub
+   ose bën "View Source" nuk sheh asgjë të përdorshme.
    ------------------------------------------------------------------------- */
 let topicCmd="", topicStatus="";
 
@@ -1158,7 +1157,7 @@ const MQTT_PORT=8884;                 /* WSS për shfletuesin */
 
 const mqttClient=new Paho.Client(MQTT_HOST,MQTT_PORT,"/mqtt","App_"+Math.random().toString(16).slice(2,8));
 
-let carTimer,isMqttConnected=false,isEngineRunning=false,userRole="guest",pinEntry="";
+let carTimer,isMqttConnected=false,isEngineRunning=false,userRole="guest";
 let isDoorsOpen=false,isKeyActive=false,carKm=0,isAcOn=false;
 
 const ICON={
@@ -1177,17 +1176,17 @@ function isAdmin(){return userRole==="admin"}
 function needAdmin(){
  if(isAdmin())return true;
  alert("⛔ Vetëm ADMIN ka akses.\n\nRoli yt: "+(userRole||"—").toUpperCase()+
-   "\n\nDil dhe hyr me PIN-in e adminit.");
+   "\n\nKërkoji pronarit të të japë të drejtat e adminit.");
  return false;
 }
 
 /* =========================================================================
-   2) LOGIN / PIN — IDENTIKE
+   2) NDIHMËS TË PËRGJITHSHËM
    ========================================================================= */
 /* =========================================================================
    REAGIMI NË PREKJE — vibrim + shenjë vizuale për çdo buton
    ========================================================================= */
-const TAP_SEL=".btn,.num,.mini,.iconbtn,.ditem,.mbtn,.nav,.tab,.themepill,.dots b,.item";
+const TAP_SEL=".btn,.mini,.iconbtn,.ditem,.mbtn,.nav,.tab,.themepill,.dots b,.item";
 let hapticOn=localStorage.getItem("haptics")!=="0";
 
 /* =========================================================================
@@ -1240,7 +1239,6 @@ function buzz(ms){
    Lartësia e tingullit ndryshon sipas rëndësisë: sa më i thellë, aq më
    serioz veprimi. Kështu e "ndjen" ndryshimin edhe pa e parë ekranin. */
 function buzzFor(el){
- if(el.matches(".num")){                       buzz(9);  tik(2400,.035,12); return}
  if(el.matches(".mini,.dots b")){              buzz(8);  tik(2200,.035,12); return}
  if(el.matches(".nav,.tab,.iconbtn,.themepill")){buzz(7);tik(2600,.030,10); return}
  if(el.matches(".btn.bred,.mbtn.go")){         buzz(16); tik(1200,.070,26); return}  /* veprime të forta */
@@ -1248,9 +1246,8 @@ function buzzFor(el){
  buzz(6); tik(2400,.030,10);
 }
 function ripple(el,x,y){
- /* numpad-i përjashtohet: çdo element shtesë brenda tij e zhvendos paraqitjen */
- if(el.matches(".num,.themepill,.item,.dots b"))return;
- if(el.closest("#login"))return;
+ if(el.matches(".themepill,.item,.dots b"))return;
+ if(el.closest("#elogin"))return;
  const r=el.getBoundingClientRect();
  const d=Math.max(r.width,r.height)*1.9;
  const s=document.createElement("span");
@@ -1319,58 +1316,19 @@ function syncHaptics(){
  mirror("hapticsbtn","REAGIMI: "+(hapticOn?"AKTIV":"JOAKTIV"));
 }
 
-function drawPin(){
- const b=document.getElementById("pin");if(!b)return;
- b.classList.remove("bad");
- b.querySelectorAll("i").forEach((d,i)=>d.classList.toggle("on",i<pinEntry.length));
-}
-function addPin(n){
- if(pinEntry.length>=4)return;
- pinEntry+=n;drawPin();
- if(pinEntry.length===4)setTimeout(checkLogin,140);   /* hyn vetë me shifrën e 4-t */
-}
-function clearPin(){pinEntry="";drawPin()}
-function badPin(){
- const b=document.getElementById("pin");
- if(b){b.classList.add("bad");setTimeout(()=>{pinEntry="";drawPin()},420)}
- else{pinEntry="";}
- buzz([40,60,40]);
-}
-
-/* Butonat e numpad-it: veprojnë në "pointerdown" mbi butonin e prekur vërtet.
-   Këtu NUK matet ekrani — çdo ndryshim lartësie gjatë prekjes do të
-   rirregullonte faqen nën gisht dhe do të zhvendoste shtypjen tjetër. */
-document.addEventListener("DOMContentLoaded",()=>{
- document.querySelectorAll(".numpad .num").forEach(b=>{
-  b.addEventListener("pointerdown",ev=>{
-   ev.preventDefault();
-   const t=b.textContent.trim();
-   if(t==="C")clearPin();
-   else if(t==="OK")checkLogin();
-   else addPin(t);
-  },{passive:false});
-  b.removeAttribute("onclick");
- });
-});
 /* =========================================================================
    HYRJA / REGJISTRIMI ME EMAIL
    Rrjedha:
-     REGJISTRIM  -> email + fjalëkalim + PIN-i i adminit (një herë)
-                    PIN-i vërteton se llogaria është e jotja; pa të, kushdo
-                    që gjen adresën do të krijonte llogari.
-     HYRJE       -> vetëm email + fjalëkalim
-   Pas hyrjes, roli ruhet lokalisht dhe app-i hapet direkt herët e tjera.
+     REGJISTRIM  -> email + fjalëkalim. Llogaria krijohet pa asnjë akses;
+                    kërkesa shfaqet te admini, i cili e aprovon nga app-i.
+     HYRJE       -> email + fjalëkalim
+   Roli lexohet GJITHMONË nga "lejuar/<uid>" në Firebase, kurrë nga telefoni.
    ========================================================================= */
 let eModRegjistrim=false;
 
 function shfaqEmail(){
- document.getElementById("login").classList.remove("active");
  document.getElementById("elogin").classList.add("active");
  eMsgTrego("");
-}
-function shfaqPin(){
- document.getElementById("elogin").classList.remove("active");
- document.getElementById("login").classList.add("active");
 }
 function eMsgTrego(t,lloj){
  const m=document.getElementById("eMsg");
@@ -1434,9 +1392,9 @@ function emailHyr(){
      Krijimi i llogarisë është i lirë te Firebase — kushdo me një email mund
      ta bëjë, dhe kjo NUK mund të ndalohet nga ana e app-it. Prandaj mbrojtja
      nuk qëndron te regjistrimi, por te LISTA E LEJUARVE ("lejuar/<uid>") që
-     e kontrollon vetëm pronari nga Firebase Console.
-     Pa atë hyrje, llogaria e re nuk lexon dot asgjë: as topikët, as PIN-in,
-     as të dhënat. Sheh vetëm një ekran që i thotë kodin e vet.          */
+     e kontrollon vetëm admini — nga CILËSIMET -> PËRDORUESIT.
+     Pa atë hyrje, llogaria e re nuk lexon dot asgjë: as topikët, as të
+     dhënat. Sheh vetëm një ekran që i thotë kodin e vet.               */
   firebase.auth().createUserWithEmailAndPassword(mail,pass).then(cred=>{
    const u=cred.user;
    /* Shkruaj kërkesën; nëse rregullat e bllokojnë, s'ka rëndësi */
@@ -1453,14 +1411,26 @@ function emailHyr(){
  }
 
  /* HYRJE normale.
-    Roli merret nga "lejuar/<uid>" — nyje që e shkruan VETËM pronari nga
-    Firebase Console. Nëse llogaria nuk është aty, hyrja nuk lejohet dhe
-    përdoruesit i tregohet kodi i tij, që t'ia dërgojë pronarit.        */
+    Roli merret nga "lejuar/<uid>" — nyje që e shkruan VETËM admini, nga
+    CILËSIMET -> PËRDORUESIT. Nëse llogaria nuk është aty, hyrja nuk
+    lejohet dhe përdoruesit i tregohet kodi i tij.                      */
  firebase.auth().signInWithEmailAndPassword(mail,pass).then(cred=>{
   const u=cred.user;
   db.ref("lejuar/"+u.uid).once("value").then(s=>{
-   if(!s.exists()){ btn.disabled=false; trogoKodin(u.uid,mail); return }
+   if(!s.exists()){
+    /* Nuk është në listë -> lëre kërkesën që admini ta shohë në app.
+       Rregullat lejojnë secilin të shkruajë VETËM nyjen e vet.       */
+    db.ref("emailUsers/"+u.uid).set({email:mail,krijuar:Date.now()}).catch(()=>{});
+    btn.disabled=false; trogoKodin(u.uid,mail); return;
+   }
    const v=s.val()||{};
+   /* BLLOKIM I PERKOHSHEM nga admini — nyja ekziston por hyrja ndalohet */
+   if(v.bllokuar===true){
+    btn.disabled=false;
+    firebase.auth().signOut();
+    eMsgTrego("Kjo llogari është bllokuar përkohësisht.","err");
+    return;
+   }
    const role=(v.role==="admin")?"admin":"guest";
    const name=v.name||mail.split("@")[0];
    perfundo(cred,role,name);
@@ -1508,40 +1478,6 @@ function emailHarruar(){
   .catch(e=>eMsgTrego(eGabim(e&&e.code),"err"));
 }
 
-function checkLogin(){
- if(!pinEntry)return;
- /* pa autentikim, cdo lexim kthen "Permission denied" */
- if(!authReady){whenAuthed(checkLogin);return}
- const enter=(role,name)=>{
-  sessionStorage.setItem("isAuth","true");
-  sessionStorage.setItem("role",role);
-  sessionStorage.setItem("userName",name||(role==="admin"?"Admin":"Guest"));
-  showApp();
- };
- const pretty=t=>{t=String(t||"").trim();return t?t.charAt(0).toUpperCase()+t.slice(1):""};
-
- db.ref("adminConfig/password").once("value").then(s=>{
-  if(String(pinEntry)===String(s.val())){
-   db.ref("adminConfig/name").once("value").then(a=>enter("admin",a.val()||"Admin"))
-    .catch(()=>enter("admin","Admin"));
-  }
-  /* adminë shtesë: adminUsers/PIN = {name:"..."} */
-  else db.ref("adminUsers/"+pinEntry).once("value").then(ad=>{
-   if(ad.exists()){
-    const v=ad.val(),o=(v&&typeof v==="object")?v:{};
-    enter("admin",pretty(o.name||o.emri||(typeof v==="string"?v:"")||"Admin"));
-    return;
-   }
-   return db.ref("guestUsers/"+pinEntry).once("value").then(g=>{
-    if(g.exists()){
-     const v=g.val(),o=(v&&typeof v==="object")?v:{};
-     enter("guest",pretty(o.name||o.emri||(typeof v==="string"?v:"")||"Guest"));
-    }
-    else badPin();
-   });
-  });
- });
-}
 /* ---- PËRSHËNDETJA SIPAS ORËS + EMRIT TË PËRDORUESIT ---- */
 function greetWord(){
  const h=new Date().getHours();
@@ -1559,7 +1495,6 @@ function renderGreeting(){
  r.className="g2"+(isAdmin()?" adm":"");
 }
 function showApp(){
- document.getElementById("login").classList.remove("active");
  const el=document.getElementById("elogin");
  if(el)el.classList.remove("active");
  userRole=sessionStorage.getItem("role")||"guest";
@@ -1571,8 +1506,9 @@ function showApp(){
  whenAuthed(()=>{
   loadTopics();          /* topikët merren nga Firebase, pastaj lidhet MQTT */
   lexoOretNgaFirebase();
-  loadServices();loadHidden();loadLog();loadGuests();loadKm();loadHistYears();histLoad();
+  loadServices();loadHidden();loadLog();loadKm();loadHistYears();histLoad();
   syncTg();
+  usrSync();             /* numëruesit e përdoruesve — vetëm për admin */
  });
 }
 
@@ -1702,7 +1638,7 @@ function logout(){
   return;
  }
 
- /* Sesion me PIN, anonim, ose Firebase i pandodhur */
+ /* Sesion i mbetur ose Firebase i pandodhur */
  try{sessionStorage.clear()}catch(e){}
  if(fbGati){ try{firebase.auth().signOut()}catch(e){} }
  location.reload();
@@ -1918,6 +1854,213 @@ function bClose(){
 function esc(s){
  return String(s==null?"":s).replace(/[&<>"']/g,c=>
   ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* ===================================================================
+   MENAXHIMI I PËRDORUESVE — nga telefoni, pa Firebase Console
+   -------------------------------------------------------------------
+   Siguria nuk qëndron këtu, por te rregullat e Firebase:
+     lejuar/       -> lexohet e plotë VETËM nga admin
+     lejuar/<uid>  -> shkruhet VETËM nga admin ('.validate' kufizon fushat)
+     emailUsers/   -> secili shkruan VETËM nyjen e vet (email + datë)
+   Edhe nëse dikush e ndryshon këtë JS nga Console i shfletuesit, Firebase
+   e refuzon shkrimin. Prandaj asnjë kontroll këtu nuk është "mbrojtje" —
+   janë vetëm rehati për ndërfaqen.
+   =================================================================== */
+let usrTeGjithe={};   /* lejuar/      */
+let usrKerkesa={};    /* emailUsers/  */
+
+function uOpen(){document.getElementById("uScrim").classList.add("on")}
+function uClose(){document.getElementById("uScrim").classList.remove("on")}
+
+/* Numëruesit te karta e CILËSIMEVE — sync i heshtur */
+function usrSync(){
+ if(sessionStorage.getItem("role")!=="admin")return;
+ db.ref("lejuar").once("value").then(s=>{
+  usrTeGjithe=s.val()||{};
+  mirror("usrnum",String(Object.keys(usrTeGjithe).length));
+  return db.ref("emailUsers").once("value");
+ }).then(s=>{
+  usrKerkesa=s?(s.val()||{}):{};
+  const pret=Object.keys(usrKerkesa).filter(u=>!usrTeGjithe[u]).length;
+  mirror("usrpret",pret>0?String(pret):"—");
+ }).catch(()=>{
+  mirror("usrnum","—");mirror("usrpret","—");
+ });
+}
+
+function usrLista(){
+ if(!needAdmin())return;
+ document.getElementById("uTitle").textContent="PËRDORUESIT";
+ document.getElementById("uSub").textContent="Prek një përdorues për ta ndryshuar";
+ document.getElementById("uBody").innerHTML='<div class="bwait">Duke lexuar…</div>';
+ uOpen();
+
+ db.ref("lejuar").once("value").then(s=>{
+  usrTeGjithe=s.val()||{};
+  return db.ref("emailUsers").once("value");
+ }).then(s=>{
+  usrKerkesa=s.val()||{};
+  usrVizato();
+ }).catch(e=>{
+  document.getElementById("uBody").innerHTML=
+   '<div class="uempty">Nuk u lexua dot lista.<br>'+
+   'Sigurohu që rregullat e reja janë ngarkuar te Firebase.</div>';
+ });
+}
+
+function usrVizato(){
+ const imi=(authUser&&authUser.uid)||"";
+ let h="";
+
+ /* --- KËRKESAT E REJA: te emailUsers por jo te lejuar --- */
+ const pret=Object.keys(usrKerkesa).filter(u=>!usrTeGjithe[u]);
+ if(pret.length){
+  h+='<div class="usec">KËRKESA TË REJA ('+pret.length+')</div>';
+  pret.forEach(uid=>{
+   const e=(usrKerkesa[uid]||{}).email||"—";
+   h+='<div class="brow">'+
+      '<div class="bn" style="background:rgba(255,159,10,.16);color:var(--orange)">!</div>'+
+      '<div class="bi"><div class="bt">'+esc(e)+'</div>'+
+      '<div class="bs">'+esc(uid.slice(0,14))+'…</div></div>'+
+      '<button class="bx ok" onclick="usrAprovo(\''+esc(uid)+'\')">APROVO</button>'+
+      '<button class="bx" onclick="usrRefuzo(\''+esc(uid)+'\')">FSHI</button></div>';
+  });
+ }
+
+ /* --- TË MIRATUARIT --- */
+ const uids=Object.keys(usrTeGjithe);
+ h+='<div class="usec">ME AKSES ('+uids.length+')</div>';
+ if(!uids.length){
+  h+='<div class="uempty">Asnjë përdorues.</div>';
+ }else{
+  uids.forEach(uid=>{
+   const v=usrTeGjithe[uid]||{};
+   const adm=v.role==="admin";
+   const blk=v.bllokuar===true;
+   const vet=(uid===imi);
+   const em=(usrKerkesa[uid]||{}).email||"";
+   h+='<div class="brow'+(blk?" blk":"")+'">'+
+      '<div class="bn"'+(adm?'':' style="background:rgba(255,255,255,.06);color:var(--sub2)"')+'>'+
+       (adm?"A":"G")+'</div>'+
+      '<div class="bi"><div class="bt">'+esc(v.name||em||"PA EMËR")+
+       (vet?' <span style="color:var(--accent);font-size:9px">(ti)</span>':'')+'</div>'+
+      '<div class="bs">'+esc(em||uid.slice(0,14)+"…")+'</div></div>'+
+      '<span class="utag '+(blk?"blo":(adm?"adm":"gst"))+'">'+
+       (blk?"BLLOKUAR":(adm?"ADMIN":"GUEST"))+'</span>'+
+      '<button class="bx warn" onclick="usrHap(\''+esc(uid)+'\')">···</button></div>';
+  });
+ }
+ document.getElementById("uBody").innerHTML=h;
+}
+
+/* Menuja e një përdoruesi */
+function usrHap(uid){
+ const v=usrTeGjithe[uid]||{};
+ const adm=v.role==="admin";
+ const blk=v.bllokuar===true;
+ const vet=(authUser&&authUser.uid===uid);
+ const em=(usrKerkesa[uid]||{}).email||"";
+ document.getElementById("uTitle").textContent=v.name||em||"PËRDORUESI";
+ document.getElementById("uSub").textContent=uid;
+ let h="";
+ if(vet){
+  h+='<div class="uempty" style="color:var(--orange)">⚠️ Kjo është llogaria jote.<br>'+
+     'Nëse ia heq të drejtat, do të dalësh jashtë dhe do të duhet Firebase Console.</div>';
+ }
+ h+='<div class="brow" onclick="usrEmri(\''+esc(uid)+'\')">'+
+    '<div class="bi"><div class="bt">NDRYSHO EMRIN</div>'+
+    '<div class="bs">'+esc(v.name||"pa emër")+'</div></div></div>';
+ h+='<div class="brow" onclick="usrRol(\''+esc(uid)+'\','+(adm?'false':'true')+')">'+
+    '<div class="bi"><div class="bt">'+(adm?"BËJE GUEST":"BËJE ADMIN")+'</div>'+
+    '<div class="bs">tani: '+(adm?"admin":"guest")+'</div></div></div>';
+ h+='<div class="brow" onclick="usrBlloko(\''+esc(uid)+'\','+(blk?'false':'true')+')">'+
+    '<div class="bi"><div class="bt">'+(blk?"ÇBLLOKO":"BLLOKO PËRKOHËSISHT")+'</div>'+
+    '<div class="bs">'+(blk?"hyrja është e ndaluar":"e mban në listë, ndalon hyrjen")+'</div></div></div>';
+ h+='<div class="brow" onclick="usrFshi(\''+esc(uid)+'\')">'+
+    '<div class="bi"><div class="bt" style="color:var(--danger)">FSHI PËRFUNDIMISHT</div>'+
+    '<div class="bs">e heq nga lista</div></div></div>';
+ h+='<div class="brow" onclick="usrLista()" style="margin-top:12px">'+
+    '<div class="bi"><div class="bt">‹ KTHEHU</div></div></div>';
+ document.getElementById("uBody").innerHTML=h;
+}
+
+/* ---- veprimet ---- */
+function usrRuaj(uid,obj,msg){
+ db.ref("lejuar/"+uid).update(obj)
+  .then(()=>{showFeedback(msg);usrLista();usrSync()})
+  .catch(()=>alert("Nuk u ruajt. Kontrollo rregullat e Firebase."));
+}
+
+function usrAprovo(uid){
+ const em=(usrKerkesa[uid]||{}).email||"";
+ const emri=prompt("Emri i përdoruesit (si do të duket në app):",
+                   em?em.split("@")[0]:"");
+ if(emri===null)return;
+ db.ref("lejuar/"+uid).set({
+  role:"guest",name:(emri||"").slice(0,40)||"Përdorues",
+  shtuar:Date.now()
+ }).then(()=>{showFeedback("✅ U aprovua si GUEST");usrLista();usrSync()})
+  .catch(()=>alert("Nuk u ruajt. Kontrollo rregullat."));
+}
+
+function usrRefuzo(uid){
+ if(!confirm("Ta fshij këtë kërkesë?\n\nLlogaria mbetet e krijuar, por pa akses.\nMund të rikërkojë duke hyrë përsëri."))return;
+ db.ref("emailUsers/"+uid).remove()
+  .then(()=>{showFeedback("🗑️ Kërkesa u fshi");usrLista();usrSync()})
+  .catch(()=>alert("Nuk u fshi. Kontrollo rregullat."));
+}
+
+function usrEmri(uid){
+ const v=usrTeGjithe[uid]||{};
+ const n=prompt("Emri i ri:",v.name||"");
+ if(n===null)return;
+ usrRuaj(uid,{name:(n||"").slice(0,40)},"✏️ Emri u ndryshua");
+}
+
+function usrRol(uid,beAdmin){
+ if(beAdmin){
+  if(!confirm("KUJDES\n\nAdmini mund të:\n• nisë dhe fikë makinën\n• ndryshojë çdo cilësim\n• shtojë e heqë përdorues të tjerë\n• të heqë EDHE TY\n\nTë vazhdoj?"))return;
+ }else if(authUser&&authUser.uid===uid){
+  if(!confirm("Po i heq të drejtat e adminit VETES.\n\nDo të dalësh jashtë menjëherë dhe do të duhet\nFirebase Console për t'i rikthyer.\n\nTë vazhdoj?"))return;
+ }
+ usrRuaj(uid,{role:beAdmin?"admin":"guest"},beAdmin?"👑 U bë ADMIN":"👤 U bë GUEST");
+}
+
+function usrBlloko(uid,blo){
+ if(blo&&authUser&&authUser.uid===uid){
+  if(!confirm("Po bllokon VETEN.\n\nDo të dalësh jashtë dhe nuk hyn dot më\npa Firebase Console.\n\nTë vazhdoj?"))return;
+ }
+ usrRuaj(uid,{bllokuar:blo},blo?"🚫 U bllokua":"✅ U çbllokua");
+}
+
+function usrFshi(uid){
+ const v=usrTeGjithe[uid]||{};
+ if(authUser&&authUser.uid===uid){
+  if(!confirm("Po fshin LLOGARINË TËNDE nga lista.\n\nDo të mbetesh jashtë dhe do të duhet\nFirebase Console për të hyrë përsëri.\n\nTë vazhdoj?"))return;
+ }else if(!confirm("Fshi përfundimisht \""+(v.name||uid.slice(0,10))+"\"?")) return;
+ db.ref("lejuar/"+uid).remove()
+  .then(()=>db.ref("emailUsers/"+uid).remove().catch(()=>{}))
+  .then(()=>{showFeedback("🗑️ U fshi");usrLista();usrSync()})
+  .catch(()=>alert("Nuk u fshi. Kontrollo rregullat."));
+}
+
+/* Shtim me UID të ngjitur — për rastin kur s'ka kërkesë automatike */
+function usrShtoManual(){
+ if(!needAdmin())return;
+ const uid=(prompt("Ngjit KODIN (UID) e përdoruesit:\n\n"+
+   "Personi e merr nga ekrani \"Llogaria pret miratim\"\n"+
+   "pasi provon të hyjë me email-in e vet.")||"").trim();
+ if(!uid)return;
+ if(uid.length<20||/[^A-Za-z0-9]/.test(uid)){
+  alert("Ky nuk duket si UID i vlefshëm.\nDuhet ~28 shkronja dhe numra, pa hapësira.");return;
+ }
+ const emri=(prompt("Emri i tij (si do të duket në app):")||"").trim();
+ if(!emri)return;
+ db.ref("lejuar/"+uid).set({
+  role:"guest",name:emri.slice(0,40),shtuar:Date.now()
+ }).then(()=>{showFeedback("✅ U shtua si GUEST");usrLista();usrSync()})
+  .catch(()=>alert("Nuk u ruajt. Kontrollo rregullat e Firebase."));
 }
 
 /* Pamja 1 — lista e beacon-ëve të regjistruar */
@@ -2326,7 +2469,7 @@ document.addEventListener("visibilitychange",()=>{
 });
 /* pas mbylljes së login-it, scroll-i sigurohet përsëri në zero */
 document.addEventListener("DOMContentLoaded",()=>{
- const l=document.getElementById("login");
+ const l=document.getElementById("elogin");
  if(l&&window.MutationObserver){
   new MutationObserver(()=>setTimeout(resetScroll,80))
    .observe(l,{attributes:true,attributeFilter:["class"]});
@@ -3105,119 +3248,11 @@ function exportLog(){
 }
 
 /* =========================================================================
-   7) PËRDORUESIT GUEST
+   7) PËRDORUESIT
+   Menaxhimi me PIN (guestUsers / adminUsers / adminConfig.password) u hoq
+   më 28.08.2026. Tani përdoret vetëm nyja "lejuar/<uid>" me email-hyrje —
+   shih funksionet usrLista(), usrAprovo(), usrBlloko() më lart.
    ========================================================================= */
-let gData={},aData={};
-function loadGuests(){
- db.ref("guestUsers").on("value",s=>{gData=s.val()||{};renderGuests()},
-  ()=>{document.getElementById("gList").innerHTML='<div class="empty">Nuk u lexuan përdoruesit</div>'});
- db.ref("adminUsers").on("value",s=>{aData=s.val()||{};renderAdmins()},
-  ()=>{document.getElementById("aList").innerHTML='<div class="empty">Nuk u lexuan adminët</div>'});
-}
-/* ---------- ADMINËT SHTESË ---------- */
-function renderAdmins(){
- const box=document.getElementById("aList");if(!box)return;
- const keys=Object.keys(aData);
- document.getElementById("aCount").textContent=keys.length+1; /* +1 = admini kryesor */
- const main=`<div class="item">
-   <div class="txt"><div class="n">ADMINI KRYESOR <span class="tag ok">GJITHMONË</span></div>
-   <div class="d">PIN: ${isAdmin()?"i ruajtur te adminConfig":"••••"} • nuk fshihet dot</div></div>
-   <div class="act">
-     <button class="mini" style="color:var(--accent)" onclick="changeAdminPin()" title="Ndrysho PIN-in">
-       <svg class="ico" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
-   </div></div>`;
- if(!keys.length){box.innerHTML=main+'<div class="empty">Asnjë admin shtesë</div>';return}
- box.innerHTML=main+keys.map(pin=>{
-  const v=aData[pin],o=(v&&typeof v==="object")?v:{};
-  const nm=o.name||o.emri||"ADMIN";
-  const cr=o.created?new Date(o.created).toLocaleDateString("sq-AL"):"—";
-  const shown=isAdmin()?pin:"••••";
-  return `<div class="item">
-   <div class="txt"><div class="n">${nm} <span class="tag warn">ADMIN</span></div>
-   <div class="d">PIN: ${shown} • krijuar: ${cr}</div></div>
-   <div class="act">
-     <button class="mini" style="color:var(--accent)" onclick="renameAdmin('${pin}')">
-       <svg class="ico" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
-     <button class="mini" style="color:var(--danger)" onclick="delAdmin('${pin}')">
-       <svg class="ico" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
-   </div></div>`;
- }).join("");
-}
-function addAdmin(){
- if(!needAdmin())return;
- const pin=prompt("PIN-i i adminit të ri (4 shifra):");
- if(!pin)return;
- if(!/^\d{4}$/.test(pin)){alert("PIN-i duhet të ketë saktësisht 4 shifra.");return}
- if(aData[pin]){alert("Ky PIN ekziston tashmë te adminët.");return}
- if(gData[pin]){alert("Ky PIN përdoret nga një guest. Fshije së pari ose zgjidh tjetër.");return}
- const nm=prompt("Emri i adminit:","ADMIN")||"ADMIN";
- db.ref("adminUsers/"+pin).set({name:nm.toUpperCase(),created:Date.now()});
- showFeedback("🛡️ Admini u shtua");
-}
-function renameAdmin(pin){
- if(!needAdmin())return;
- const v=aData[pin],o=(v&&typeof v==="object")?v:{};
- const nm=prompt("Emri i ri:",o.name||"ADMIN");if(nm===null)return;
- db.ref("adminUsers/"+pin).update({name:nm.toUpperCase(),created:o.created||Date.now()});
-}
-function delAdmin(pin){
- if(!needAdmin())return;
- const o=aData[pin]||{};
- if(!confirm("Hiq aksesin admin për \""+(o.name||pin)+"\"?"))return;
- db.ref("adminUsers/"+pin).remove();
- showFeedback("🗑️ Admini u hoq");
-}
-function renderGuests(){
- const box=document.getElementById("gList");if(!box)return;
- const keys=Object.keys(gData);
- document.getElementById("gCount").textContent=keys.length;
- if(!keys.length){box.innerHTML='<div class="empty">Asnjë përdorues guest i regjistruar</div>';return}
- box.innerHTML=keys.map(pin=>{
-  const v=gData[pin],o=(v&&typeof v==="object")?v:{};
-  const nm=o.name||o.emri||"PËRDORUES GUEST";
-  const cr=o.created?new Date(o.created).toLocaleDateString("sq-AL"):"—";
-  const shown=isAdmin()?pin:"••••";
-  return `<div class="item">
-   <div class="txt"><div class="n">${nm}</div><div class="d">PIN: ${shown} • krijuar: ${cr}</div></div>
-   <div class="act">
-     <button class="mini" style="color:var(--accent)" onclick="renameGuest('${pin}')">
-       <svg class="ico" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
-     <button class="mini" style="color:var(--danger)" onclick="delGuest('${pin}')">
-       <svg class="ico" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
-   </div></div>`;
- }).join("");
-}
-function addGuest(){
- if(!needAdmin())return;
- const pin=prompt("PIN-i i ri (4 shifra):");
- if(!pin)return;
- if(!/^\d{4}$/.test(pin)){alert("PIN-i duhet të ketë saktësisht 4 shifra.");return}
- if(gData[pin]){alert("Ky PIN ekziston tashmë.");return}
- if(aData[pin]){alert("Ky PIN përdoret nga një admin. Zgjidh një tjetër.");return}
- const nm=prompt("Emri i përdoruesit:","GUEST")||"GUEST";
- db.ref("guestUsers/"+pin).set({name:nm.toUpperCase(),created:Date.now()});
- showFeedback("👤 Përdoruesi u shtua");
-}
-function renameGuest(pin){
- if(!needAdmin())return;
- const v=gData[pin],o=(v&&typeof v==="object")?v:{};
- const nm=prompt("Emri i ri:",o.name||"GUEST");if(nm===null)return;
- db.ref("guestUsers/"+pin).update({name:nm.toUpperCase(),created:o.created||Date.now()});
-}
-function delGuest(pin){
- if(!needAdmin())return;
- if(!confirm("Fshi përdoruesin me PIN "+pin+"?"))return;
- db.ref("guestUsers/"+pin).remove();
- showFeedback("🗑️ Përdoruesi u fshi");
-}
-function changeAdminPin(){
- if(!needAdmin())return;
- const p=prompt("PIN-i i ri i adminit (4 shifra):");
- if(!p)return;
- if(!/^\d{4}$/.test(p)){alert("PIN-i duhet të ketë 4 shifra.");return}
- if(!confirm("Konfirmo ndryshimin e PIN-it të adminit në "+p+" ?"))return;
- db.ref("adminConfig/password").set(p).then(()=>alert("✅ PIN-i u ndryshua."));
-}
 
 /* ---- ORA ---- */
 setInterval(()=>{
@@ -3270,6 +3305,54 @@ function initWeather(){
    ------------------------------------------------------------------------- */
 if("scrollRestoration" in history)history.scrollRestoration="manual";
 
+/* =========================================================================
+   TASTIERA NË iOS STANDALONE (homescreen)
+   -------------------------------------------------------------------------
+   Problemi: kur app-i hapet nga ekrani kryesor, Safari NUK e zvogëlon
+   viewport-in kur ngrihet tastiera. Meqë <body> është position:fixed me
+   height:100%, ekrani i hyrjes mbetet i centruar në lartësinë e plotë dhe
+   fushat e shkrimit fshihen poshtë tastierës — shkruaje pa e parë.
+
+   Zgjidhja: window.visualViewport na jep lartësinë VËRTET të dukshme.
+   E vendosim si --vvh dhe shtojmë klasën .kb sa është tastiera hapur.
+   Pastaj fusha aktive sillet brenda pamjes.
+
+   E sigurt: nëse visualViewport nuk ekziston (shfletues të vjetër), nuk
+   ndodh asgjë dhe faqja sillet saktësisht si më parë.
+   ========================================================================= */
+(function(){
+ const vv=window.visualViewport;
+ if(!vv)return;
+ const el=()=>document.getElementById("elogin");
+
+ function perditeso(){
+  const e=el(); if(!e)return;
+  /* Sa është zvogëluar pamja = lartësia e tastierës */
+  const tastiera=Math.max(0,window.innerHeight-vv.height-vv.offsetTop);
+  document.documentElement.style.setProperty("--vvh",vv.height+"px");
+  e.classList.toggle("kb",tastiera>90);
+ }
+
+ /* Sill fushën aktive brenda pamjes — pas ridimensionimit të tastierës */
+ function shihFushen(){
+  const a=document.activeElement;
+  if(!a||!a.matches||!a.matches("#elogin input"))return;
+  setTimeout(()=>{
+   try{a.scrollIntoView({block:"center",behavior:"smooth"})}catch(err){}
+  },120);
+ }
+
+ vv.addEventListener("resize",()=>{perditeso();shihFushen()});
+ vv.addEventListener("scroll",perditeso);
+ document.addEventListener("focusin",ev=>{
+  if(ev.target.matches&&ev.target.matches("#elogin input")){perditeso();shihFushen()}
+ });
+ document.addEventListener("focusout",()=>setTimeout(perditeso,80));
+ window.addEventListener("orientationchange",()=>setTimeout(perditeso,300));
+ perditeso();
+ document.addEventListener("DOMContentLoaded",perditeso);
+})();
+
 function resetScroll(){
  window.scrollTo(0,0);
  document.documentElement.scrollTop=0;
@@ -3280,12 +3363,21 @@ document.addEventListener("DOMContentLoaded",resetScroll);
 window.addEventListener("load",()=>{resetScroll();setTimeout(resetScroll,60);setTimeout(resetScroll,300)});
 window.addEventListener("pageshow",()=>{resetScroll();setTimeout(resetScroll,60)});
 window.addEventListener("orientationchange",()=>setTimeout(resetScroll,250));
-window.addEventListener("focus",resetScroll);
+window.addEventListener("focus",()=>{if(!kbHapur())resetScroll()});
 document.addEventListener("visibilitychange",()=>{
  if(document.visibilityState==="visible"){resetScroll();setTimeout(resetScroll,60)}
 });
-/* çdo përpjekje e sistemit për të rrëshqitur dokumentin anulohet */
-window.addEventListener("scroll",()=>{if(window.scrollY!==0)resetScroll()},{passive:true});
+/* Çdo përpjekje e sistemit për të rrëshqitur dokumentin anulohet — POR jo
+   kur tastiera është hapur te ekrani i hyrjes: aty scroll-i është i
+   qëllimshëm (sjell fushën mbi tastierë) dhe anulimi do ta prishte.      */
+function kbHapur(){
+ const e=document.getElementById("elogin");
+ return !!(e&&e.classList.contains("kb"));
+}
+window.addEventListener("scroll",()=>{
+ if(kbHapur())return;
+ if(window.scrollY!==0)resetScroll();
+},{passive:true});
 
 function syncViewport(){resetScroll()}   /* ruhet emri për thirrjet ekzistuese */
 
@@ -3303,7 +3395,7 @@ window.addEventListener("load",()=>{
  syncBle();
  resetScroll();
  if(sessionStorage.getItem("isAuth"))showApp();
- else document.getElementById("login").classList.add("active");
+ else document.getElementById("elogin").classList.add("active");
  resetScroll();
  initWeather();setInterval(initWeather,15*60*1000);
  setInterval(renderGreeting,60000);
@@ -3495,5 +3587,5 @@ window.addEventListener("load",()=>{
  init();
 })();
 </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a325f676affdee5c',t:'MTc4Nzk0Nzg2MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
