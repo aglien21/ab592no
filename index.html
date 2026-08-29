@@ -517,8 +517,6 @@ body.guest .gnote{display:block}
     <div class="loginbox">
       <h1><i>i30</i> DIGITAL REMOTE</h1>
       <p id="eSub">HYR NË LLOGARINË TËNDE</p>
-      <p id="eSub">⬇️</p>
-      <p id="eSub">Created By AGLIEN</p>
     </div>
   </div>
 
@@ -530,7 +528,7 @@ body.guest .gnote{display:block}
     </div>
     <div class="efld">
       <label>FJALËKALIMI</label>
-      <input id="ePass" type="password" autocomplete="current-password" placeholder="Passwordi yt">
+      <input id="ePass" type="password" autocomplete="current-password" placeholder="••••••••">
     </div>
 
     <div class="ehint" id="ePinWrap" style="display:none;text-align:center;line-height:1.5">
@@ -619,7 +617,7 @@ body.guest .gnote{display:block}
     <div class="grid2">
       <div class="card">
         <div class="title">TELEMETRIA</div>
-        <div class="row"><span>MOTORI</span><b id="val-engine" class="green">FIKUR</b></div>
+        <div class="row"><span>MOTORI</span><b id="val-engine" class="green">OFF</b></div>
         <div class="row"><span>DYERT</span><b id="val-locks" class="green">TË MBYLLURA</b></div>
         <div class="row"><span>ÇELËSI SERVISIT</span><b id="val-key" class="gray">JO AKTIV</b></div>
         <div class="row"><span>ORË SOT</span><b data-m="today" class="accent">0h 0m</b></div>
@@ -737,7 +735,7 @@ body.guest .gnote{display:block}
         <div class="title">GJENDJA E AUTOMJETIT</div>
         <div class="row"><span>KILOMETRAZHI AKTUAL</span><b data-m="km">-- km</b></div>
         <div class="row"><span>ÇELËSI I SERVISIT</span><b data-m="key">JO AKTIV</b></div>
-        <div class="row"><span>MOTORI</span><b data-m="engine">FIKUR</b></div>
+        <div class="row"><span>MOTORI</span><b data-m="engine">OFF</b></div>
         <div class="row"><span>TENSIONI</span><b data-m="battery">--.-V</b></div>
       </div>
 
@@ -902,6 +900,25 @@ body.guest .gnote{display:block}
       <button class="btn wide auto bblue" onclick="setNetPaketa()">
         <svg class="ico" viewBox="0 0 24 24"><path d="M12 20h.01"/><path d="M2 8.8a15 15 0 0 1 20 0"/><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/></svg>
         <span class="lbl">PAKETA / RIVENDOS</span></button>
+    </div>
+
+    <div class="card">
+      <div class="title">REGJISTRIMI I UDHËTIMEVE</div>
+      <div class="row"><span>GJENDJA</span><b class="gray" onclick="trToggle()" data-m="trgjendje">—</b></div>
+      <div class="row"><span>TANI</span><b data-m="traktiv">—</b></div>
+      <div class="row"><span>PIKA TË REGJISTRUARA</span><b data-m="trpika">—</b></div>
+      <div class="row"><span>GPS</span><b data-m="trgps">—</b></div>
+    </div>
+    <div class="rowbtns">
+      <button class="btn wide auto bblue" onclick="trToggle()">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="2.8"/></svg>
+        <span class="lbl" data-m="trbtn">REGJISTRIMI</span></button>
+    </div>
+    <div class="card">
+      <div class="ehint" style="text-align:center;line-height:1.6;font-size:10px">
+        Regjistron rrugën vetë kur <b>ndizet motorri</b> dhe ndalon kur fiket.<br>
+        Ruhet në makinë — <b>nuk harxhon internet</b> derisa ta shkarkosh.
+      </div>
     </div>
 
     <div class="card">
@@ -1766,6 +1783,30 @@ function tavaniSiguri(){
  sendCommand("SUNROOF");
 }
 
+/* =========================================================================
+   REGJISTRIMI I UDHËTIMEVE — çelësi (Hapi 1)
+   Gjendja e vërtetë vjen GJITHMONË nga ESP32 te statusi ("tr").
+   Kjo ndryshore është vetëm kopje për ndërfaqen.
+   ========================================================================= */
+let trLejuar=false;
+
+function trToggle(){
+ if(!needAdmin())return;
+ if(trLejuar){
+  if(!confirm("Ta ndal regjistrimin e udhëtimeve?\n\n"+
+    "Udhëtimet e ruajtura NUK fshihen.\n"+
+    "Nëse makina po ecën tani, udhëtimi aktual mbyllet normalisht."))return;
+  sendCommand("TRIP_REC:OFF");
+ }else{
+  if(!confirm("Ta nis regjistrimin e udhëtimeve?\n\n"+
+    "GPS-i do të ndizet vetëm kur punon motorri.\n"+
+    "Sa punon motorri, hyrja me beacon nuk vepron — por kthehet\n"+
+    "vetvetiu sapo fiket makina.\n\n"+
+    "Nuk harxhon internet: ruhet në makinë."))return;
+  sendCommand("TRIP_REC:ON");
+ }
+}
+
 function toggleMenyraMT(){
  const v=localStorage.getItem("mtHapPasHapi")==="1"?"0":"1";
  localStorage.setItem("mtHapPasHapi",v);
@@ -2545,11 +2586,11 @@ mqttClient.onMessageArrived=msg=>{
    mirror("battery",txt,Number(d.v)>12?"green":"red");
   }
 
-  /* MOTORI: FIKUR = JESHIL • NDEZUR = KUQ */
+  /* MOTORI: OFF = JESHIL • NDEZUR = KUQ */
   if(d.e!==undefined){
    isEngineRunning=d.e===1;
    const e=document.getElementById("val-engine"),i=document.getElementById("icon-engine"),l=document.getElementById("lbl-engine");
-   e.textContent=isEngineRunning?"NDEZUR":"FIKUR";
+   e.textContent=isEngineRunning?"NDEZUR":"OFF";
    e.className=isEngineRunning?"red":"green";
    i.innerHTML=isEngineRunning?ICON.stop:ICON.power;
    l.textContent=isEngineRunning?"FIK MOTORRIN":"NDIZ MOTORRIN";
@@ -2616,6 +2657,26 @@ mqttClient.onMessageArrived=msg=>{
    mirror("netsot",formatMB(kb), kb>1024?"red":(kb>700?"orange":"green"));
   }
   if(d.net!==undefined)zbatoNetMbetur(Number(d.net)||0);
+
+  /* ---- REGJISTRIMI I UDHËTIMEVE (Hapi 1) ----
+     tr  = çelësi (a lejohet regjistrimi)
+     tra = a po regjistron pikërisht tani (motorri ndezur)
+     trp = sa pika janë shkruar në udhëtimin aktual                    */
+  if(d.tr!==undefined){
+   trLejuar=(Number(d.tr)===1);
+   mirror("trgjendje",trLejuar?"AKTIV":"JOAKTIV",trLejuar?"green":"gray");
+   mirror("trbtn",trLejuar?"REGJISTRIMI: AKTIV":"REGJISTRIMI: JOAKTIV");
+  }
+  if(d.tra!==undefined){
+   const po=(Number(d.tra)===1);
+   mirror("traktiv",po?"PO REGJISTRON":"—",po?"green":"gray");
+   /* GPS-i ndizet vetëm sa punon motorri — e njëjta gjendje si regjistrimi */
+   mirror("trgps",po?"NDEZUR":"FIKUR",po?"green":"gray");
+  }
+  if(d.trp!==undefined){
+   const n=Number(d.trp)||0;
+   mirror("trpika",n>0?String(n):"—",n>0?"accent":"gray");
+  }
 
   /* Udhëtimet me datë — secili shkruhet te dita e vet */
   if(d.whl!==undefined&&Array.isArray(d.whl)&&userRole==="admin"){
@@ -3612,5 +3673,5 @@ window.addEventListener("load",()=>{
  init();
 })();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3263246481cedd4',t:'MTc4Nzk1MDMxMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a32a8fde0d3a1b37',t:'MTc4Nzk5NjA4OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
